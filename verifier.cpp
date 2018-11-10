@@ -1,10 +1,16 @@
-#include <verifier.hpp>
-// #include <crypto.h>
+#include <eosiolib/eosio.hpp>
+#include <eosiolib/print.hpp>
+#include <eosiolib/types.h>
+#include <eosiolib/crypto.h>
 
-// void verifier::recover_key(const checksum256* digest,
-//                            const char* sig,
-//                            size_t siglen,
-//                            char* pub,
-//                            size_t publen) {
+using namespace eosio;
 
-// }
+class verifier : public contract {
+  public:
+      using contract::contract;
+
+      [[eosio::action]]
+      void assrtrcvrky() {
+      }
+};
+EOSIO_DISPATCH(verifier, (assrtrcvrky))

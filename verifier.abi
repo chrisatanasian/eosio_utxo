@@ -1,0 +1,22 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Nov 10 14:07:21 2018",
+    "version": "eosio::abi/1.0",
+    "structs": [
+        {
+            "name": "assrtrcvrky",
+            "base": "",
+            "fields": []
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "assrtrcvrky",
+            "type": "assrtrcvrky",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [],
+    "ricardian_clauses": [],
+    "abi_extensions": []
+}
