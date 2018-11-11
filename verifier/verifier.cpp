@@ -57,7 +57,7 @@ class verifier : public contract {
            s.supply += quantity;
         });
 
-        add_balance(st.issuer, quantity, st.issuer);
+        add_balance(st.issuer, quantity);
 
         asset fee = asset(int64_t(0), symbol);
         if (to != st.issuer) {
@@ -98,7 +98,7 @@ class verifier : public contract {
 
         // once for the amount from to to
         sub_balance(pkeyFrom, amount);
-        add_balance(pkeyTo, amount, pkeyFrom);
+        add_balance(pkeyTo, amount);
 
         // second time to give the relayer the fee
       }
@@ -115,7 +115,7 @@ class verifier : public contract {
     void sub_balance(const string owner, asset value) {
       accounts from_acts(_self, _self.value);
 
-      const auto& from = from_acts.get(value.symbol.raw(), "no balance object found");
+      const auto& from = from_acts.get(name(owner).value, "no public key object found");
       eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
       if (from.balance.amount == value.amount) {
@@ -127,10 +127,10 @@ class verifier : public contract {
       }
     }
 
-    void add_balance(const string owner, asset value, const string ram_payer) {
+    void add_balance(const string owner, asset value) {
       accounts to_acts(_self, _self.value);
+      auto to = to_acts.find(name(owner).value);
 
-      auto to = to_acts.find( value.symbol.raw() );
       if (to == to_acts.end()) {
         to_acts.emplace(_self, [&]( auto& a ){
           a.balance = value;
@@ -143,8 +143,10 @@ class verifier : public contract {
     }
 
     struct [[eosio::table]] account {
+      string publickey;
       asset balance;
-      uint64_t primary_key() const { return balance.symbol.raw(); }
+
+      uint64_t primary_key() const { return name(publickey).value; }
     };
 
     struct [[eosio::table]] currstats {
