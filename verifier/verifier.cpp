@@ -29,7 +29,7 @@ class verifier : public contract {
         const string signature = "SIG_K1_KfQ57wLFFiPR85zjuQyZsn7hK3jRicHXg4qETxLvxHQTHHejveGtiYBSx6Z68xBZYrY9Fihz74makocnSLQFBwaHTg6Aaa";
         eosio_assert(recover_key(digest, signature, 101, pkeyFrom, 53), "digest and signature do not match");
 
-        auto sym = amount.symbol.code();
+        auto sym = amount.symbol.raw();
         stats statstable(_self, sym);
         const auto& st = statstable.get(sym);
 
@@ -64,10 +64,10 @@ class verifier : public contract {
       eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
       if (from.balance.amount == value.amount) {
-        from_acts.erase( from );
+        from_acts.erase(from);
       } else {
-        from_acts.modify( from, owner, [&]( auto& a ) {
-            a.balance -= value;
+        from_acts.modify(from, _self, [&]( auto& a ) {
+          a.balance -= value;
         });
       }
     }
@@ -77,11 +77,11 @@ class verifier : public contract {
 
       auto to = to_acts.find( value.symbol.raw() );
       if (to == to_acts.end()) {
-        to_acts.emplace( ram_payer, [&]( auto& a ){
+        to_acts.emplace(_self, [&]( auto& a ){
           a.balance = value;
         });
       } else {
-        to_acts.modify( to, 0, [&]( auto& a ) {
+        to_acts.modify(to, _self, [&]( auto& a ) {
           a.balance += value;
         });
       }
