@@ -12,8 +12,8 @@ class verifier : public contract {
       using contract::contract;
 
       [[eosio::action]]
-      void create(string issuer,
-                         asset maximum_supply) {
+      void create(const string issuer,
+                  asset maximum_supply) {
         require_auth(_self);
 
         auto symbol = maximum_supply.symbol;
@@ -33,14 +33,46 @@ class verifier : public contract {
       }
 
       [[eosio::action]]
-      void addutxo(name relayer,
-                   const string pkeyFrom,
-                   const string pkeyTo,
-                   const string pkeyFee,
-                   asset amount,
-                   asset fee,
-                   string memo) {
-        require_auth(relayer);
+      void issue(const string to, asset quantity, const string memo) {
+        require_auth(_self);
+
+        auto symbol = quantity.symbol;
+        eosio_assert(symbol.is_valid(), "invalid symbol name");
+        eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+
+        stats statstable(_self, symbol.raw());
+        auto existing = statstable.find(symbol.raw());
+        eosio_assert(existing != statstable.end(), "token with symbol does not exist, create token before issue");
+        const auto& st = *existing;
+
+        eosio_assert(quantity.is_valid(), "invalid quantity");
+        eosio_assert(quantity.amount > 0, "must issue positive quantity");
+
+        eosio_assert(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
+        eosio_assert(quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
+
+        statstable.modify(st, _self, [&](auto& s) {
+           s.supply += quantity;
+        });
+
+        add_balance(st.issuer, quantity, st.issuer);
+
+        asset fee = asset(int64_t(0), symbol);
+        if (to != st.issuer) {
+           SEND_INLINE_ACTION(*this,
+                              transfer,
+                              {st.issuer, "active"_n},
+                              {st.issuer, to, quantity, fee, memo} );
+        }
+      }
+
+      [[eosio::action]]
+      void transfer(const string pkeyFrom,
+                    const string pkeyTo,
+                    asset amount,
+                    asset fee,
+                    string memo) {
+        require_auth(_self);
         eosio_assert(pkeyFrom != pkeyTo, "cannot transfer to self");
 
         capi_checksum256 digest;
@@ -125,4 +157,4 @@ class verifier : public contract {
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };
-EOSIO_DISPATCH(verifier, (create)(addutxo))
+EOSIO_DISPATCH(verifier, (create)(issue)(transfer))
