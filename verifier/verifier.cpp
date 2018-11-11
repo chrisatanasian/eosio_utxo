@@ -110,6 +110,8 @@ class verifier : public contract {
                      size_t siglen,
                      const string pub,
                      size_t publen) {
+      // TODO
+      // assert_recover_key(digest, signature, pub);
       return true;
     }
 
