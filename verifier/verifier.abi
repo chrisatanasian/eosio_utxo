@@ -68,7 +68,7 @@
             ]
         },
         {
-            "name": "currency_stats",
+            "name": "currstats",
             "base": "",
             "fields": [
                 {"name":"supply", "type":"asset"},
@@ -76,8 +76,7 @@
                 {"name":"issuer", "type":"string"}
             ]
         }
-      ]
-    ],
+      ],
     "types": [],
     "actions": [
         {
