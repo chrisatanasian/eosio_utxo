@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:43:43 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 09:36:46 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -64,7 +64,7 @@
             "name": "account",
             "base": "",
             "fields": [
-                {"name":"balance", "type":"asset"}
+                {"name":"balance", "type":"asset"},
             ]
         },
         {
@@ -76,7 +76,7 @@
                 {"name":"issuer", "type":"string"}
             ]
         }
-      ],
+    ],
     "types": [],
     "actions": [
         {

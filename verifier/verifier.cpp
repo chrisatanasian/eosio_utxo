@@ -22,6 +22,8 @@ class verifier : public contract {
         eosio_assert(maximum_supply.amount > 0, "max-supply must be positive");
 
         stats statstable(_self, symbol.raw());
+        print("Raw symbol: ");
+        print(symbol.raw());
         auto existing = statstable.find(symbol.raw());
         eosio_assert(existing == statstable.end(), "token with symbol already exists");
 
@@ -95,8 +97,8 @@ class verifier : public contract {
         eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
         // once for the amount from to to
-        // sub_balance(pkeyFrom, amount);
-        // add_balance(pkeyTo, amount, pkeyFrom);
+        sub_balance(pkeyFrom, amount);
+        add_balance(pkeyTo, amount, pkeyFrom);
 
         // second time to give the relayer the fee
       }
@@ -111,22 +113,22 @@ class verifier : public contract {
     }
 
     void sub_balance(const string owner, asset value) {
-      // accounts from_acts(_self, _self.value);
+      accounts from_acts(_self, _self.value);
 
-      // const auto& from = from_acts.get(value.symbol.raw(), "no balance object found");
-      // eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
+      const auto& from = from_acts.get(value.symbol.raw(), "no balance object found");
+      eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
-      // if (from.balance.amount == value.amount) {
-      //   from_acts.erase(from);
-      // } else {
-      //   from_acts.modify(from, _self, [&]( auto& a ) {
-      //     a.balance -= value;
-      //   });
-      // }
+      if (from.balance.amount == value.amount) {
+        from_acts.erase(from);
+      } else {
+        from_acts.modify(from, _self, [&]( auto& a ) {
+          a.balance -= value;
+        });
+      }
     }
 
     void add_balance(const string owner, asset value, const string ram_payer) {
-      accounts to_acts (_self, _self.value);
+      accounts to_acts(_self, _self.value);
 
       auto to = to_acts.find( value.symbol.raw() );
       if (to == to_acts.end()) {
