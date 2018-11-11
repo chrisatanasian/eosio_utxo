@@ -12,6 +12,27 @@ class verifier : public contract {
       using contract::contract;
 
       [[eosio::action]]
+      void create(string issuer,
+                         asset maximum_supply) {
+        require_auth(_self);
+
+        auto symbol = maximum_supply.symbol;
+        eosio_assert(symbol.is_valid(), "invalid symbol name");
+        eosio_assert(maximum_supply.is_valid(), "invalid supply");
+        eosio_assert(maximum_supply.amount > 0, "max-supply must be positive");
+
+        stats statstable(_self, symbol.raw());
+        auto existing = statstable.find(symbol.raw());
+        eosio_assert(existing == statstable.end(), "token with symbol already exists");
+
+        statstable.emplace(_self, [&](auto& s) {
+          s.supply.symbol = maximum_supply.symbol;
+          s.max_supply    = maximum_supply;
+          s.issuer        = issuer;
+        });
+      }
+
+      [[eosio::action]]
       void addutxo(name relayer,
                    const string pkeyFrom,
                    const string pkeyTo,
@@ -42,8 +63,8 @@ class verifier : public contract {
         eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
         // once for the amount from to to
-        sub_balance(pkeyFrom, amount);
-        add_balance(pkeyTo, amount, pkeyFrom);
+        // sub_balance(pkeyFrom, amount);
+        // add_balance(pkeyTo, amount, pkeyFrom);
 
         // second time to give the relayer the fee
       }
@@ -54,22 +75,22 @@ class verifier : public contract {
                      size_t siglen,
                      const string pub,
                      size_t publen) {
-      return false;
+      return true;
     }
 
     void sub_balance(const string owner, asset value) {
-      accounts from_acts (_self, _self.value);
+      // accounts from_acts(_self, _self.value);
 
-      const auto& from = from_acts.get(value.symbol.raw(), "no balance object found");
-      eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
+      // const auto& from = from_acts.get(value.symbol.raw(), "no balance object found");
+      // eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
-      if (from.balance.amount == value.amount) {
-        from_acts.erase(from);
-      } else {
-        from_acts.modify(from, _self, [&]( auto& a ) {
-          a.balance -= value;
-        });
-      }
+      // if (from.balance.amount == value.amount) {
+      //   from_acts.erase(from);
+      // } else {
+      //   from_acts.modify(from, _self, [&]( auto& a ) {
+      //     a.balance -= value;
+      //   });
+      // }
     }
 
     void add_balance(const string owner, asset value, const string ram_payer) {
@@ -86,7 +107,6 @@ class verifier : public contract {
         });
       }
     }
-
 
     struct account {
       asset balance;
@@ -105,4 +125,4 @@ class verifier : public contract {
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };
-EOSIO_DISPATCH(verifier, (addutxo))
+EOSIO_DISPATCH(verifier, (create)(addutxo))

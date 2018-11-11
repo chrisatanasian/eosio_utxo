@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Nov 10 23:44:05 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:17:24 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -35,6 +35,20 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "create",
+            "base": "",
+            "fields": [
+                {
+                    "name": "issuer",
+                    "type": "string"
+                },
+                {
+                    "name": "maximum_supply",
+                    "type": "asset"
+                }
+            ]
         }
     ],
     "types": [],
@@ -42,6 +56,11 @@
         {
             "name": "addutxo",
             "type": "addutxo",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "create",
+            "type": "create",
             "ricardian_contract": ""
         }
     ],
