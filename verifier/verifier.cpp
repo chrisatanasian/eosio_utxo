@@ -140,7 +140,7 @@ class verifier : public contract {
       }
     }
 
-    struct account {
+    struct [[eosio::table]] account {
       asset balance;
       uint64_t primary_key() const { return balance.symbol.raw(); }
     };

@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:41:27 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:43:43 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
@@ -59,7 +59,24 @@
                     "type": "string"
                 }
             ]
+        },
+        {
+            "name": "account",
+            "base": "",
+            "fields": [
+                {"name":"balance", "type":"asset"}
+            ]
+        },
+        {
+            "name": "currency_stats",
+            "base": "",
+            "fields": [
+                {"name":"supply", "type":"asset"},
+                {"name":"max_supply", "type":"asset"},
+                {"name":"issuer", "type":"string"}
+            ]
         }
+      ]
     ],
     "types": [],
     "actions": [
@@ -79,7 +96,20 @@
             "ricardian_contract": ""
         }
     ],
-    "tables": [],
+    "tables": [{
+        "name": "accounts",
+        "type": "account",
+        "index_type": "i64",
+        "key_names" : ["currency"],
+        "key_types" : ["uint64"]
+    }, {
+        "name": "stats",
+        "type": "currstats",
+        "index_type": "i64",
+        "key_names" : ["currency"],
+        "key_types" : ["uint64"]
+        }
+    ],
     "ricardian_clauses": [],
     "abi_extensions": []
 }
