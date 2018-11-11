@@ -1,0 +1,47 @@
+{
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Nov 10 22:37:44 2018",
+    "version": "eosio::abi/1.0",
+    "structs": [
+        {
+            "name": "addutxo",
+            "base": "",
+            "fields": [
+                {
+                    "name": "relayer",
+                    "type": "name"
+                },
+                {
+                    "name": "pkeyFrom",
+                    "type": "string"
+                },
+                {
+                    "name": "pkeyTo",
+                    "type": "string"
+                },
+                {
+                    "name": "pkeyFee",
+                    "type": "string"
+                },
+                {
+                    "name": "amount",
+                    "type": "float64"
+                },
+                {
+                    "name": "fee",
+                    "type": "float64"
+                }
+            ]
+        }
+    ],
+    "types": [],
+    "actions": [
+        {
+            "name": "addutxo",
+            "type": "addutxo",
+            "ricardian_contract": ""
+        }
+    ],
+    "tables": [],
+    "ricardian_clauses": [],
+    "abi_extensions": []
+}
