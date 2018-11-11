@@ -59,10 +59,10 @@ class verifier : public contract {
 
         asset fee = asset(int64_t(0), symbol);
         if (to != st.issuer) {
-           SEND_INLINE_ACTION(*this,
-                              transfer,
-                              {st.issuer, "active"_n},
-                              {st.issuer, to, quantity, fee, memo} );
+          action(permission_level{ _self, "active"_n },
+                 _self, "transfer"_n,
+                 std::make_tuple(_self, "transfer"_n, st.issuer, to, quantity, fee, memo)
+                 ).send();
         }
       }
 

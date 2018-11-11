@@ -1,25 +1,49 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:17:24 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:41:27 2018",
     "version": "eosio::abi/1.0",
     "structs": [
         {
-            "name": "addutxo",
+            "name": "create",
             "base": "",
             "fields": [
                 {
-                    "name": "relayer",
-                    "type": "name"
+                    "name": "issuer",
+                    "type": "string"
                 },
+                {
+                    "name": "maximum_supply",
+                    "type": "asset"
+                }
+            ]
+        },
+        {
+            "name": "issue",
+            "base": "",
+            "fields": [
+                {
+                    "name": "to",
+                    "type": "string"
+                },
+                {
+                    "name": "quantity",
+                    "type": "asset"
+                },
+                {
+                    "name": "memo",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "transfer",
+            "base": "",
+            "fields": [
                 {
                     "name": "pkeyFrom",
                     "type": "string"
                 },
                 {
                     "name": "pkeyTo",
-                    "type": "string"
-                },
-                {
-                    "name": "pkeyFee",
                     "type": "string"
                 },
                 {
@@ -35,32 +59,23 @@
                     "type": "string"
                 }
             ]
-        },
-        {
-            "name": "create",
-            "base": "",
-            "fields": [
-                {
-                    "name": "issuer",
-                    "type": "string"
-                },
-                {
-                    "name": "maximum_supply",
-                    "type": "asset"
-                }
-            ]
         }
     ],
     "types": [],
     "actions": [
         {
-            "name": "addutxo",
-            "type": "addutxo",
+            "name": "create",
+            "type": "create",
             "ricardian_contract": ""
         },
         {
-            "name": "create",
-            "type": "create",
+            "name": "issue",
+            "type": "issue",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "transfer",
+            "type": "transfer",
             "ricardian_contract": ""
         }
     ],
