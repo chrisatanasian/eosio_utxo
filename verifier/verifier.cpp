@@ -29,7 +29,7 @@ class verifier : public contract {
         const string signature = "SIG_K1_KfQ57wLFFiPR85zjuQyZsn7hK3jRicHXg4qETxLvxHQTHHejveGtiYBSx6Z68xBZYrY9Fihz74makocnSLQFBwaHTg6Aaa";
         eosio_assert(recover_key(digest, signature, 101, pkeyFrom, 53), "digest and signature do not match");
 
-        auto sym = amount.symbol.name();
+        auto sym = amount.symbol.code();
         stats statstable(_self, sym);
         const auto& st = statstable.get(sym);
 
@@ -58,39 +58,39 @@ class verifier : public contract {
     }
 
     void sub_balance(const string owner, asset value) {
-      txtable transactions(_self, _self.value);
+      accounts from_acts (_self, _self.value);
 
-      const auto& from = from_acnts.get(value.symbol.name(), "no balance object found");
+      const auto& from = from_acts.get(value.symbol.raw(), "no balance object found");
       eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
       if (from.balance.amount == value.amount) {
-        from_acnts.erase( from );
+        from_acts.erase( from );
       } else {
-        from_acnts.modify( from, owner, [&]( auto& a ) {
+        from_acts.modify( from, owner, [&]( auto& a ) {
             a.balance -= value;
         });
       }
     }
 
     void add_balance(const string owner, asset value, const string ram_payer) {
-      txtable transactions(_self, _self.value);
+      accounts to_acts (_self, _self.value);
 
-      auto to = to_acnts.find( value.symbol.name() );
-      if (to == to_acnts.end()) {
-        to_acnts.emplace( ram_payer, [&]( auto& a ){
+      auto to = to_acts.find( value.symbol.raw() );
+      if (to == to_acts.end()) {
+        to_acts.emplace( ram_payer, [&]( auto& a ){
           a.balance = value;
         });
       } else {
-        to_acnts.modify( to, 0, [&]( auto& a ) {
+        to_acts.modify( to, 0, [&]( auto& a ) {
           a.balance += value;
         });
       }
     }
 
+
     struct account {
       asset balance;
-
-      uint64_t primary_key() const { return balance.symbol.name(); }
+      uint64_t primary_key() const { return balance.symbol.raw(); }
     };
 
     struct [[eosio::table]] currstats {
@@ -98,7 +98,7 @@ class verifier : public contract {
       asset max_supply;
       string issuer;
 
-      uint64_t primary_key() const { return supply.symbol.name(); }
+      uint64_t primary_key() const { return supply.symbol.raw(); }
     };
 
     typedef eosio::multi_index<"accounts"_n, account> accounts;
