@@ -63,7 +63,7 @@ class verifier : public contract {
         if (to != st.issuer) {
           action(permission_level{ _self, "active"_n },
                  _self, "transfer"_n,
-                 std::make_tuple(_self, "transfer"_n, st.issuer, to, quantity, fee, memo)
+                 std::make_tuple(st.issuer, to, quantity, fee, memo)
                  ).send();
         }
       }
