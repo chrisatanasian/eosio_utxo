@@ -3,6 +3,7 @@
 #include <eosiolib/types.h>
 #include <eosiolib/crypto.h>
 #include <eosiolib/asset.hpp>
+#include <sstream>
 
 using namespace eosio;
 using namespace std;
@@ -115,7 +116,11 @@ class verifier : public contract {
     void sub_balance(const string owner, asset value) {
       accounts from_acts(_self, _self.value);
 
-      const auto& from = from_acts.get(name(owner).value, "no public key object found");
+      uint64_t v;
+      istringstream iss(owner);
+      iss >> v;
+
+      const auto& from = from_acts.get(v, "no public key object found");
       eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
       if (from.balance.amount == value.amount) {
@@ -127,13 +132,19 @@ class verifier : public contract {
       }
     }
 
-    void add_balance(const string owner, asset value) {
+    void add_balance(const string recipientKey, asset value) {
       accounts to_acts(_self, _self.value);
-      auto to = to_acts.find(name(owner).value);
+
+      uint64_t v;
+      istringstream iss(recipientKey);
+      iss >> v;
+
+      auto to = to_acts.find(v);
 
       if (to == to_acts.end()) {
         to_acts.emplace(_self, [&]( auto& a ){
           a.balance = value;
+          a.publickey = recipientKey;
         });
       } else {
         to_acts.modify(to, _self, [&]( auto& a ) {
@@ -146,7 +157,13 @@ class verifier : public contract {
       string publickey;
       asset balance;
 
-      uint64_t primary_key() const { return name(publickey).value; }
+      uint64_t primary_key() const {
+        uint64_t v;
+        istringstream iss(publickey);
+        iss >> v;
+
+        return v;
+      }
     };
 
     struct [[eosio::table]] currstats {
