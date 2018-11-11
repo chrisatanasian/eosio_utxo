@@ -1,114 +1,40 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 00:43:43 2018",
-    "version": "eosio::abi/1.0",
-    "structs": [
-        {
-            "name": "create",
-            "base": "",
-            "fields": [
-                {
-                    "name": "issuer",
-                    "type": "string"
-                },
-                {
-                    "name": "maximum_supply",
-                    "type": "asset"
-                }
-            ]
-        },
-        {
-            "name": "issue",
-            "base": "",
-            "fields": [
-                {
-                    "name": "to",
-                    "type": "string"
-                },
-                {
-                    "name": "quantity",
-                    "type": "asset"
-                },
-                {
-                    "name": "memo",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "transfer",
-            "base": "",
-            "fields": [
-                {
-                    "name": "pkeyFrom",
-                    "type": "string"
-                },
-                {
-                    "name": "pkeyTo",
-                    "type": "string"
-                },
-                {
-                    "name": "amount",
-                    "type": "asset"
-                },
-                {
-                    "name": "fee",
-                    "type": "asset"
-                },
-                {
-                    "name": "memo",
-                    "type": "string"
-                }
-            ]
-        },
-        {
-            "name": "account",
-            "base": "",
-            "fields": [
-                {"name":"balance", "type":"asset"}
-            ]
-        },
-        {
-            "name": "currstats",
-            "base": "",
-            "fields": [
-                {"name":"supply", "type":"asset"},
-                {"name":"max_supply", "type":"asset"},
-                {"name":"issuer", "type":"string"}
-            ]
+  "version": "eosio::abi/1.1",
+  "types": [],
+  "structs": [{
+      "name": "transfer",
+      "base": "",
+      "fields": [{
+          "name": "pkeyfrom",
+          "type": "public_key"
+        },{
+          "name": "pkeyto",
+          "type": "public_key"
+        },{
+          "name": "amount",
+          "type": "asset"
+        },{
+          "name": "fee",
+          "type": "asset"
+        },{
+          "name": "sig",
+          "type": "signature"
+        },{
+          "name": "memo",
+          "type": "string"
         }
-      ],
-    "types": [],
-    "actions": [
-        {
-            "name": "create",
-            "type": "create",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "issue",
-            "type": "issue",
-            "ricardian_contract": ""
-        },
-        {
-            "name": "transfer",
-            "type": "transfer",
-            "ricardian_contract": ""
-        }
-    ],
-    "tables": [{
-        "name": "accounts",
-        "type": "account",
-        "index_type": "i64",
-        "key_names" : ["currency"],
-        "key_types" : ["uint64"]
-    }, {
-        "name": "stats",
-        "type": "currstats",
-        "index_type": "i64",
-        "key_names" : ["currency"],
-        "key_types" : ["uint64"]
-        }
-    ],
-    "ricardian_clauses": [],
-    "abi_extensions": []
+      ]
+    }
+  ],
+  "actions": [{
+      "name": "transfer",
+      "type": "transfer",
+      "ricardian_contract": "Transfer"
+    }
+  ],
+  "tables": [],
+  "ricardian_clauses": [],
+  "error_messages": [],
+  "abi_extensions": [],
+  "variants": []
 }

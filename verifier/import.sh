@@ -1,0 +1,2 @@
+cleos wallet import --private-key 5KamiuCeXUhKezhiLWRCZEc5eMEJfEHg2Ch5FZLhzpmo7CxqWbG
+cleos wallet import --private-key 5KUYpoLk5oCzovEzo2C5UhNWWZeJGTu55Ujydv5YuPLnGXNFW3s
