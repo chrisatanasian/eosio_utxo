@@ -38,6 +38,6 @@ cleos get table relayer relayer accounts
 ### Transfer assets
 
 ```
-cleos push action relayer transfer '["EOS7PcgxVxfBLSFMhrgYn7LtvP8eLg2BYjCx5yesGw2bdoiabWoY7", "EOS8S4YmB2fPSZDopZ2pCHFy3p4gCmwHipo4NqwTAgLuggnqRHBAp", "2 UTXO", "0 UTXO", "transfer from first account to second account"]' -p relayer
+cleos push action relayer transfer '["EOS7PcgxVxfBLSFMhrgYn7LtvP8eLg2BYjCx5yesGw2bdoiabWoY7", "EOS8S4YmB2fPSZDopZ2pCHFy3p4gCmwHipo4NqwTAgLuggnqRHBAp", "2 UTXO", "0 UTXO", "transfer from second account to first account"]' -p relayer
 cleos get table relayer relayer accounts
 ```
