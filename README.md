@@ -2,8 +2,8 @@
 
 ## TODO
 * Change public keys from type string to type public_key
-* Add fee handling
-* Use assert_recovery_key function
+* Add fee handling inside the contract itself
+* Use recovery_key function verifying the digest
 * Add nonce
 
 ## Demo
