@@ -1,0 +1,23 @@
+{
+  "from": "EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo",
+  "to": "EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi",
+  "amount": "2 UTXO",
+  "fee": "0 UTXO",
+  "memo": "transferring 2 utxo from pub key 1 to pub key 2"
+}
+
+// this is the jank json of the above (aka it is of the format that is dumped by the json library i'm hoping to use)
+// its size is
+"{\"from\":\"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo\",\"to\":\"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi\",\"amount\":\"2 UTXO\",\"fee\":\"0 UTXO\",\"memo\":\"transferring 2 utxo from pub key 1 to pub key 2\"}"
+
+digest (the above jankJSON run through a sha256): 
+"2903447785CEBC929F5B5D8128391744E38048BC800B5271BEA632BEC3274C9C"
+signature: 
+"SIG_K1_KYSqPUDrpdA5rtoiHJoTfMM9h8mE3MgPAGFkp9ZwJc58rhUcGFahZyGDKwWFSFJzpTNKfLAURPTs7KAcPzwYTLV9vzfrwT"
+
+
+
+
+cleos push action relayer printsha '["{\"from\":\"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo\",\"to\":\"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi\",\"amount\":\"2 UTXO\",\"fee\":\"0 UTXO\",\"memo\":\"transferring 2 utxo from pub key 1 to pub key 2\"}", "215"]' -p relayer
+
+cleos push action relayer verifykey '["EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo", "SIG_K1_KYSqPUDrpdA5rtoiHJoTfMM9h8mE3MgPAGFkp9ZwJc58rhUcGFahZyGDKwWFSFJzpTNKfLAURPTs7KAcPzwYTLV9vzfrwT", "2903447785CEBC929F5B5D8128391744E38048BC800B5271BEA632BEC3274C9C"]'

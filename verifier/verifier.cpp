@@ -4,9 +4,11 @@
 #include <eosiolib/crypto.h>
 #include <eosiolib/asset.hpp>
 #include <sstream>
+#include "json.hpp"
 
 using namespace eosio;
 using namespace std;
+using json = nlohmann::json;
 
 class verifier : public contract {
   public:
@@ -70,20 +72,38 @@ class verifier : public contract {
       }
 
       [[eosio::action]]
-      void transfer(const string pkeyFrom,
-                    const string pkeyTo,
+      void transfer(public_key pkeyFrom,
+                    public_key pkeyTo,
+                    signature sig,
                     asset amount,
                     asset fee,
                     string memo) {
         require_auth(_self);
         eosio_assert(pkeyFrom != pkeyTo, "cannot transfer to self");
 
-        capi_checksum256 digest;
-        const char* data = "test_data";
-        sha256(data, sizeof(data), &digest);
+        /* CREATING THE DIGEST: */
+        // init the digest var
+        eosio::checksum256 digest;
+        // first put all the data into a json format so that it can be serialized easily (or just convert it to string myself?)
+        // json digestJSON;
+        // digestJSON["from"] = pkeyFrom;
+        // digestJSON["to"] = pkeyTo;
+        // digestJSON["amount"] = amount;
+        // digestJSON["fee"] = fee;
+        // digestJSON["memo"] = memo;
 
-        const string signature = "SIG_K1_KfQ57wLFFiPR85zjuQyZsn7hK3jRicHXg4qETxLvxHQTHHejveGtiYBSx6Z68xBZYrY9Fihz74makocnSLQFBwaHTg6Aaa";
-        eosio_assert(recover_key(digest, signature, 101, pkeyFrom, 53), "digest and signature do not match");
+        // get the serialized form of the json object
+        // std::string digestJSONString = digestJSON.dump();
+
+        // convert to c_stringg for use by sha256
+        // const char* data = digestJSONString.c_str();
+        // then sha256 the json string
+        // digest = sha256(data, sizeof(data));
+        // the digest, pub key, and sig get passed to assert_recover_key or verify -- need to find this
+
+        // assert_recover_key(digest, sig, pkeyFrom);
+
+        // const string signature = "SIG_K1_KfQ57wLFFiPR85zjuQyZsn7hK3jRicHXg4qETxLvxHQTHHejveGtiYBSx6Z68xBZYrY9Fihz74makocnSLQFBwaHTg6Aaa";
 
         auto sym = amount.symbol.raw();
         stats statstable(_self, sym);
@@ -98,22 +118,33 @@ class verifier : public contract {
         eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
         // once for the amount from to to
-        sub_balance(pkeyFrom, amount);
-        add_balance(pkeyTo, amount);
+        // TODO: uncomment this once the string to public_key changes have been fully made
+        // because we're taking in public_keys up top these methods have to be updated accordingly.
+        // sub_balance(pkeyFrom, amount);
+        // add_balance(pkeyTo, amount);
 
         // second time to give the relayer the fee
       }
 
+      [[eosio::action]]
+      void verifykey(public_key pkeyFrom,
+                    signature sig,
+                    eosio::checksum256 digest) {
+        print("about to check auth -- top of the function");        
+        // require_auth(_self);
+        print("about to verify");
+        assert_recover_key(digest, sig, pkeyFrom);
+        print("verification successful");
+      }
+
+      [[eosio::action]]
+      void printsha(std::string jankJSON, uint32_t jsonLength) {
+        // runs sha 256 with the provided 2 args and prints the result so we can use it in transfer2
+        eosio::checksum256 digest = sha256(jankJSON.c_str(), jsonLength);
+        print("digest:");
+        print(digest);
+      }
   private:
-    bool recover_key(const capi_checksum256 digest,
-                     const string signature,
-                     size_t siglen,
-                     const string pub,
-                     size_t publen) {
-      // TODO
-      // assert_recover_key(digest, signature, pub);
-      return true;
-    }
 
     void sub_balance(const string owner, asset value) {
       accounts from_acts(_self, _self.value);
@@ -180,4 +211,4 @@ class verifier : public contract {
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };
-EOSIO_DISPATCH(verifier, (create)(issue)(transfer))
+EOSIO_DISPATCH(verifier, (create)(issue)(transfer)(printsha)(verifykey))

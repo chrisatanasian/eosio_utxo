@@ -61,6 +61,34 @@
             ]
         },
         {
+            "name": "printsha",
+            "base": "",
+            "fields": [
+                {
+                    "name": "jankJSON",
+                    "type": "string"
+                }
+            ]
+        },
+        {
+            "name": "verifykey",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pkeyFrom",
+                    "type": "public_key"
+                },
+                {
+                    "name": "sig",
+                    "type": "signature"
+                },
+                {
+                    "name": "digest",
+                    "type": "checksum256"
+                }
+            ]
+        },
+        {
             "name": "account",
             "base": "",
             "fields": [
@@ -94,7 +122,17 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
-        }
+        },
+        {
+            "name": "printsha",
+            "type": "printsha",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "verifykey",
+            "type": "verifykey",
+            "ricardian_contract": ""
+        },
     ],
     "tables": [{
         "name": "accounts",
