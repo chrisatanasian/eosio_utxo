@@ -3,7 +3,6 @@
 #include <eosiolib/types.h>
 #include <eosiolib/crypto.h>
 #include <eosiolib/asset.hpp>
-#include <eosiolib/public_key.hpp>
 
 using namespace eosio;
 using namespace std;
@@ -115,14 +114,15 @@ class verifier : public contract {
       return true;
     }
 
-    static uint64_t public_key_to_int(public_key publickey) {
-      return atoi((const char*)&publickey);
+    static fixed_bytes<32> public_key_to_fixed_bytes(const public_key publickey) {
+      return sha256(publickey.data.begin(), 33);
     }
 
     void sub_balance(public_key owner, asset value) {
       accounts from_acts(_self, _self.value);
 
-      const auto& from = from_acts.get(public_key_to_int(owner), "no public key object found");
+      auto accounts_index = from_acts.get_index<name("bypk")>();
+      const auto& from = accounts_index.get(public_key_to_fixed_bytes(owner), "no public key object found");
       eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
       if (from.balance.amount == value.amount) {
@@ -137,27 +137,31 @@ class verifier : public contract {
     void add_balance(public_key recipientKey, asset value) {
       accounts to_acts(_self, _self.value);
 
-      auto to = to_acts.find(public_key_to_int(recipientKey));
+      auto accounts_index = to_acts.get_index<name("bypk")>();
+      auto to = accounts_index.find(public_key_to_fixed_bytes(recipientKey));
 
-      if (to == to_acts.end()) {
+      if (to == accounts_index.end()) {
         to_acts.emplace(_self, [&]( auto& a ){
+          a.key = to_acts.available_primary_key();
           a.balance = value;
           a.publickey = recipientKey;
         });
       } else {
-        to_acts.modify(to, _self, [&]( auto& a ) {
+        accounts_index.modify(to, _self, [&]( auto& a ) {
           a.balance += value;
         });
       }
     }
 
     struct [[eosio::table]] account {
+      uint64_t key;
       public_key publickey;
       asset balance;
 
-      uint64_t primary_key() const {
-        return public_key_to_int(publickey);
-      }
+      uint64_t primary_key() const { return key; }
+      fixed_bytes<32> bypk() const {
+        return public_key_to_fixed_bytes(publickey);
+      };
     };
 
     struct [[eosio::table]] currstats {
@@ -168,7 +172,10 @@ class verifier : public contract {
       uint64_t primary_key() const { return supply.symbol.raw(); }
     };
 
-    typedef eosio::multi_index<"accounts"_n, account> accounts;
+    typedef eosio::multi_index<"accounts"_n,
+                               account,
+                               indexed_by<"bypk"_n, const_mem_fun<account, fixed_bytes<32>, &account::bypk>>
+                              > accounts;
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };

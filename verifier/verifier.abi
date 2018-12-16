@@ -64,6 +64,7 @@
             "name": "account",
             "base": "",
             "fields": [
+                {"name":"key", "type":"uint64"},
                 {"name":"publickey", "type":"public_key"},
                 {"name":"balance", "type":"asset"},
             ]
@@ -100,7 +101,7 @@
         "name": "accounts",
         "type": "account",
         "index_type": "i64",
-        "key_names" : ["publickey"],
+        "key_names" : ["key"],
         "key_types" : ["uint64"]
     }, {
         "name": "stats",
