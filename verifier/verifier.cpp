@@ -143,11 +143,16 @@ class verifier : public contract {
                     std::string data) {
         eosio::checksum256 digest = sha256(&data[0], data.size());
 
-        print("about to check auth -- top of the function");        
+        print("about to check auth -- top of the function");
         // require_auth(_self);
-        print("about to verify");
-        assert_recover_key(digest, sig, pkeyFrom);
-        print("verification successful");
+        print("about to get the public key");
+        eosio::public_key recoveredKey = recover_key(digest, sig);
+        print("got the public key");
+        const char * recoveredKeyData = &recoveredKey.data[0];
+        print(recoveredKeyData);
+        bool isMatch = recoveredKey == pkeyFrom;
+        print("isMatch");
+        print(isMatch);
       }
 
       [[eosio::action]]
