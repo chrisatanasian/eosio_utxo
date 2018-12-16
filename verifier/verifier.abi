@@ -89,6 +89,24 @@
             ]
         },
         {
+            "name": "verifykey2",
+            "base": "",
+            "fields": [
+                {
+                    "name": "pkeyFrom",
+                    "type": "public_key"
+                },
+                {
+                    "name": "sig",
+                    "type": "signature"
+                },
+                {
+                    "name": "data",
+                    "type": "string"
+                }
+            ]
+        },
+        {
             "name": "account",
             "base": "",
             "fields": [
@@ -131,6 +149,11 @@
         {
             "name": "verifykey",
             "type": "verifykey",
+            "ricardian_contract": ""
+        },
+        {
+            "name": "verifykey2",
+            "type": "verifykey2",
             "ricardian_contract": ""
         },
     ],

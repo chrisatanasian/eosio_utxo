@@ -1,0 +1,38 @@
+{
+  "from": "EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo",
+  "to": "EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi",
+  "amount": "2 UTXO",
+  "fee": "0 UTXO",
+  "memo": "transferring 2 utxo from pub key 1 to pub key 2"
+}
+
+// going to edit this so that it doesn't have the backslashes in it
+// length of the string (including the quotes on either end) is 217 characters
+
+"{"from":"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo","to":"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi","amount":"2 UTXO","fee":"0 UTXO","memo":"transferring 2 utxo from pub key 1 to pub key 2"}"
+
+digest (the above JSON run through a sha256):
+(with all spaces and newlines removed)"3b4c148632b2c9c23c57ba2536b0db2f454482c09398b7aa5b1bf5119e4acd75"
+(sha 256 on pretty print json) "d5dd28753286fe87dc4a050c77d70a2440f73eb8c3d1036647638fec95438db2"
+(with spaces removed again): "cb8622d84381da689763c663242f48b5a7aaaec0d79747c98247831866a726a9"
+
+then get the signature with the following command:
+cleos sign {digestJSONString} -k {privateKey}
+cleos sign "{"from":"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo","to":"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi","amount":"2 UTXO","fee":"0 UTXO","memo":"transferring 2 utxo from pub key 1 to pub key 2"}" -k "5JvsffwDPDDZLh3fAXUeX5HY88EwcSQAJ8wHSSZriftyDSGBQCU"
+cleos sign /Users/masonraasch/dev/contracts/eosio_utxo/transferTestFiles/transferTransactionJSON.json -k "5JvsffwDPDDZLh3fAXUeX5HY88EwcSQAJ8wHSSZriftyDSGBQCU"
+
+signature:
+(provided file with pretty printed json)
+"SIG_K1_KYSqPUDrpdA5rtoiHJoTfMM9h8mE3MgPAGFkp9ZwJc58rhUcGFahZyGDKwWFSFJzpTNKfLAURPTs7KAcPzwYTLV9vzfrwT"
+SIG_K1_KYSqPUDrpdA5rtoiHJoTfMM9h8mE3MgPAGFkp9ZwJc58rhUcGFahZyGDKwWFSFJzpTNKfLAURPTs7KAcPzwYTLV9vzfrwT
+
+cleos push action relayer printsha '["{\"from\":\"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo\",\"to\":\"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi\",\"amount\":\"2 UTXO\",\"fee\":\"0 UTXO\",\"memo\":\"transferring 2 utxo from pub key 1 to pub key 2\"}", "215"]' -p relayer
+// just verifies that the sig and the digest + pub key combo match up
+cleos push action relayer verifykey '["EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo", "SIG_K1_KYSqPUDrpdA5rtoiHJoTfMM9h8mE3MgPAGFkp9ZwJc58rhUcGFahZyGDKwWFSFJzpTNKfLAURPTs7KAcPzwYTLV9vzfrwT", "cb8622d84381da689763c663242f48b5a7aaaec0d79747c98247831866a726a9"]' -p relayer
+
+
+
+// now trying to do less guessing (by creating the digest within the action) via action verifykey2
+"{"from":"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo","to":"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi","amount":"2 UTXO","fee":"0 UTXO","memo":"transferring 2 utxo from pub key 1 to pub key 2"}"
+cleos push action relayer verifykey2 '["EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo", "SIG_K1_KYSqPUDrpdA5rtoiHJoTfMM9h8mE3MgPAGFkp9ZwJc58rhUcGFahZyGDKwWFSFJzpTNKfLAURPTs7KAcPzwYTLV9vzfrwT", "{"from":"EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo","to":"EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi","amount":"2 UTXO","fee":"0 UTXO","memo":"transferring 2 utxo from pub key 1 to pub key 2"}"]' -p relayer
+

@@ -138,6 +138,19 @@ class verifier : public contract {
       }
 
       [[eosio::action]]
+      void verifykey2(public_key pkeyFrom,
+                    signature sig,
+                    std::string data) {
+        eosio::checksum256 digest = sha256(&data[0], data.size());
+
+        print("about to check auth -- top of the function");        
+        // require_auth(_self);
+        print("about to verify");
+        assert_recover_key(digest, sig, pkeyFrom);
+        print("verification successful");
+      }
+
+      [[eosio::action]]
       void printsha(std::string jankJSON, uint32_t jsonLength) {
         // runs sha 256 with the provided 2 args and prints the result so we can use it in transfer2
         eosio::checksum256 digest = sha256(jankJSON.c_str(), jsonLength);
@@ -211,4 +224,4 @@ class verifier : public contract {
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };
-EOSIO_DISPATCH(verifier, (create)(issue)(transfer)(printsha)(verifykey))
+EOSIO_DISPATCH(verifier, (create)(issue)(transfer)(printsha)(verifykey)(verifykey2))
