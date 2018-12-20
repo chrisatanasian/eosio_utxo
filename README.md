@@ -1,7 +1,6 @@
 # eosio_utxo
 
 ## TODO
-* Add fee handling inside the contract itself
 * Use recovery_key function verifying the digest
 * Add nonce
 

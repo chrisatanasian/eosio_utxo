@@ -101,6 +101,10 @@ class verifier : public contract {
         add_balance(pkeyTo, amount);
 
         // second time to give the relayer the fee
+        if (fee.amount > 0) {
+          sub_balance(pkeyFrom, fee);
+          add_balance(st.issuer, fee);
+        }
       }
 
   private:
