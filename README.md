@@ -1,7 +1,6 @@
 # eosio_utxo
 
 ## TODO
-* Change public keys from type string to type public_key
 * Add fee handling inside the contract itself
 * Use recovery_key function verifying the digest
 * Add nonce
