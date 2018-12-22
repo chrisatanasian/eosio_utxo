@@ -16,10 +16,14 @@ cleos push action relayer create '["EOS8S4YmB2fPSZDopZ2pCHFy3p4gCmwHipo4NqwTAgLu
 cleos get table relayer 340784338176 stats
 
 # issue
-cleos push action relayer issue '["EOS7PcgxVxfBLSFMhrgYn7LtvP8eLg2BYjCx5yesGw2bdoiabWoY7", "5 UTXO", "issue to first account"]' -p relayer
+cleos push action relayer issue '["EOS7PcgxVxfBLSFMhrgYn7LtvP8eLg2BYjCx5yesGw2bdoiabWoY7", "10 UTXO", "issue to first account"]' -p relayer
 cleos push action relayer issue '["EOS8MCxWjToU77qy8RhqFcXd3xNWAihb2rULGLuZ6rdhEZWdxC9RJ", "2 UTXO", "issue to second account"]' -p relayer
 cleos get table relayer relayer accounts
 
 # transfer
 cleos push action relayer transfer '["EOS7PcgxVxfBLSFMhrgYn7LtvP8eLg2BYjCx5yesGw2bdoiabWoY7", "EOS8MCxWjToU77qy8RhqFcXd3xNWAihb2rULGLuZ6rdhEZWdxC9RJ", "2 UTXO", "0 UTXO", "transfer from second account to first account"]' -p relayer
+cleos get table relayer relayer accounts
+
+# fee
+cleos push action relayer transfer '["EOS7PcgxVxfBLSFMhrgYn7LtvP8eLg2BYjCx5yesGw2bdoiabWoY7", "EOS8MCxWjToU77qy8RhqFcXd3xNWAihb2rULGLuZ6rdhEZWdxC9RJ", "2 UTXO", "1 UTXO", "transfer from second account to first account"]' -p relayer
 cleos get table relayer relayer accounts
