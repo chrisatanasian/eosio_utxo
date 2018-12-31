@@ -66,14 +66,14 @@ class verifier : public contract {
           action(permission_level{ _self, "active"_n },
                  _self, "transfer"_n,
                  std::make_tuple(st.issuer, to, quantity, fee, memo)
-                 ).send();
+                ).send();
         }
       }
 
       [[eosio::action]]
       void transfer(public_key pkeyFrom,
                     public_key pkeyTo,
-                    signature sig,
+                    //signature sig,
                     asset amount,
                     asset fee,
                     string memo) {
@@ -117,10 +117,8 @@ class verifier : public contract {
         eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
 
         // once for the amount from to to
-        // TODO: uncomment this once the string to public_key changes have been fully made
-        // because we're taking in public_keys up top these methods have to be updated accordingly.
-        // sub_balance(pkeyFrom, amount);
-        // add_balance(pkeyTo, amount);
+        sub_balance(pkeyFrom, amount);
+        add_balance(pkeyTo, amount);
 
         // second time to give the relayer the fee
         if (fee.amount > 0) {
@@ -133,7 +131,7 @@ class verifier : public contract {
       void verifykey(public_key pkeyFrom,
                     signature sig,
                     eosio::checksum256 digest) {
-        print("about to check auth -- top of the function");        
+        print("about to check auth -- top of the function");
         // require_auth(_self);
         print("about to verify");
         assert_recover_key(digest, sig, pkeyFrom);
