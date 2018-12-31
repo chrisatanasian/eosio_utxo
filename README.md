@@ -1,9 +1,7 @@
 # eosio_utxo
 
 ## TODO
-* Change public keys from type string to type public_key
-* Add fee handling
-* Use assert_recovery_key function
+* Use recovery_key function verifying the digest
 * Add nonce
 
 ## Demo

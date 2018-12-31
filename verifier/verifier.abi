@@ -1,6 +1,6 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sun Nov 11 09:36:46 2018",
-    "version": "eosio::abi/1.0",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Dec  8 08:54:44 2018",
+    "version": "eosio::abi/1.1",
     "structs": [
         {
             "name": "create",
@@ -8,7 +8,7 @@
             "fields": [
                 {
                     "name": "issuer",
-                    "type": "string"
+                    "type": "public_key"
                 },
                 {
                     "name": "maximum_supply",
@@ -22,7 +22,7 @@
             "fields": [
                 {
                     "name": "to",
-                    "type": "string"
+                    "type": "public_key"
                 },
                 {
                     "name": "quantity",
@@ -40,11 +40,11 @@
             "fields": [
                 {
                     "name": "pkeyFrom",
-                    "type": "string"
+                    "type": "public_key"
                 },
                 {
                     "name": "pkeyTo",
-                    "type": "string"
+                    "type": "public_key"
                 },
                 {
                     "name": "amount",
@@ -110,7 +110,8 @@
             "name": "account",
             "base": "",
             "fields": [
-                {"name":"publickey", "type":"string"},
+                {"name":"key", "type":"uint64"},
+                {"name":"publickey", "type":"public_key"},
                 {"name":"balance", "type":"asset"},
             ]
         },
@@ -120,7 +121,7 @@
             "fields": [
                 {"name":"supply", "type":"asset"},
                 {"name":"max_supply", "type":"asset"},
-                {"name":"issuer", "type":"string"}
+                {"name":"issuer", "type":"public_key"}
             ]
         }
     ],
@@ -161,7 +162,7 @@
         "name": "accounts",
         "type": "account",
         "index_type": "i64",
-        "key_names" : ["publickey"],
+        "key_names" : ["key"],
         "key_types" : ["uint64"]
     }, {
         "name": "stats",
@@ -172,5 +173,6 @@
         }
     ],
     "ricardian_clauses": [],
+    "variants": [],
     "abi_extensions": []
 }

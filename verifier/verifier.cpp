@@ -3,7 +3,6 @@
 #include <eosiolib/types.h>
 #include <eosiolib/crypto.h>
 #include <eosiolib/asset.hpp>
-#include <sstream>
 #include "json.hpp"
 
 using namespace eosio;
@@ -15,7 +14,7 @@ class verifier : public contract {
       using contract::contract;
 
       [[eosio::action]]
-      void create(const string issuer,
+      void create(public_key issuer,
                   asset maximum_supply) {
         require_auth(_self);
 
@@ -38,7 +37,7 @@ class verifier : public contract {
       }
 
       [[eosio::action]]
-      void issue(const string to, asset quantity, const string memo) {
+      void issue(public_key to, asset quantity, const string memo) {
         require_auth(_self);
 
         auto symbol = quantity.symbol;
@@ -124,6 +123,10 @@ class verifier : public contract {
         // add_balance(pkeyTo, amount);
 
         // second time to give the relayer the fee
+        if (fee.amount > 0) {
+          sub_balance(pkeyFrom, fee);
+          add_balance(st.issuer, fee);
+        }
       }
 
       [[eosio::action]]
@@ -164,14 +167,15 @@ class verifier : public contract {
       }
   private:
 
-    void sub_balance(const string owner, asset value) {
+    static fixed_bytes<32> public_key_to_fixed_bytes(const public_key publickey) {
+      return sha256(publickey.data.begin(), 33);
+    }
+
+    void sub_balance(public_key owner, asset value) {
       accounts from_acts(_self, _self.value);
 
-      uint64_t v;
-      istringstream iss(owner);
-      iss >> v;
-
-      const auto& from = from_acts.get(v, "no public key object found");
+      auto accounts_index = from_acts.get_index<name("bypk")>();
+      const auto& from = accounts_index.get(public_key_to_fixed_bytes(owner), "no public key object found");
       eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
 
       if (from.balance.amount == value.amount) {
@@ -183,49 +187,48 @@ class verifier : public contract {
       }
     }
 
-    void add_balance(const string recipientKey, asset value) {
+    void add_balance(public_key recipientKey, asset value) {
       accounts to_acts(_self, _self.value);
 
-      uint64_t v;
-      istringstream iss(recipientKey);
-      iss >> v;
+      auto accounts_index = to_acts.get_index<name("bypk")>();
+      auto to = accounts_index.find(public_key_to_fixed_bytes(recipientKey));
 
-      auto to = to_acts.find(v);
-
-      if (to == to_acts.end()) {
+      if (to == accounts_index.end()) {
         to_acts.emplace(_self, [&]( auto& a ){
+          a.key = to_acts.available_primary_key();
           a.balance = value;
           a.publickey = recipientKey;
         });
       } else {
-        to_acts.modify(to, _self, [&]( auto& a ) {
+        accounts_index.modify(to, _self, [&]( auto& a ) {
           a.balance += value;
         });
       }
     }
 
     struct [[eosio::table]] account {
-      string publickey;
+      uint64_t key;
+      public_key publickey;
       asset balance;
 
-      uint64_t primary_key() const {
-        uint64_t v;
-        istringstream iss(publickey);
-        iss >> v;
-
-        return v;
-      }
+      uint64_t primary_key() const { return key; }
+      fixed_bytes<32> bypk() const {
+        return public_key_to_fixed_bytes(publickey);
+      };
     };
 
     struct [[eosio::table]] currstats {
       asset supply;
       asset max_supply;
-      string issuer;
+      public_key issuer;
 
       uint64_t primary_key() const { return supply.symbol.raw(); }
     };
 
-    typedef eosio::multi_index<"accounts"_n, account> accounts;
+    typedef eosio::multi_index<"accounts"_n,
+                               account,
+                               indexed_by<"bypk"_n, const_mem_fun<account, fixed_bytes<32>, &account::bypk>>
+                              > accounts;
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };
