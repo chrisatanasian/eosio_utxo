@@ -142,7 +142,7 @@ class verifier : public contract {
       void verifykey2(public_key pkeyFrom,
                     signature sig,
                     std::string data) {
-        eosio::checksum256 digest = sha256(&data[0], data.size());
+        eosio::checksum256 digest = sha256(data.c_str(), data.size());
 
         print("about to check auth -- top of the function");
         // require_auth(_self);
