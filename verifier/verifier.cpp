@@ -63,106 +63,24 @@ class verifier : public contract {
 
         asset fee = asset(int64_t(0), symbol);
         if (to != st.issuer) {
-          action(permission_level{ _self, "active"_n },
-                 _self, "transfer"_n,
-                 std::make_tuple(st.issuer, to, quantity, fee, memo)
-                ).send();
+          transfer_internal(st.issuer, to, quantity, fee, memo);
         }
       }
 
       [[eosio::action]]
       void transfer(public_key pkeyFrom,
                     public_key pkeyTo,
-                    //signature sig,
+                    signature sig,
+                    checksum256 digest,
                     asset amount,
                     asset fee,
                     string memo) {
-        require_auth(_self);
-        eosio_assert(pkeyFrom != pkeyTo, "cannot transfer to self");
-
-        /* CREATING THE DIGEST: */
-        // init the digest var
-        eosio::checksum256 digest;
-        // first put all the data into a json format so that it can be serialized easily (or just convert it to string myself?)
-        // json digestJSON;
-        // digestJSON["from"] = pkeyFrom;
-        // digestJSON["to"] = pkeyTo;
-        // digestJSON["amount"] = amount;
-        // digestJSON["fee"] = fee;
-        // digestJSON["memo"] = memo;
-
-        // get the serialized form of the json object
-        // std::string digestJSONString = digestJSON.dump();
-
-        // convert to c_stringg for use by sha256
-        // const char* data = digestJSONString.c_str();
-        // then sha256 the json string
-        // digest = sha256(data, sizeof(data));
-        // the digest, pub key, and sig get passed to assert_recover_key or verify -- need to find this
-
-        // assert_recover_key(digest, sig, pkeyFrom);
-
-        // const string signature = "SIG_K1_KfQ57wLFFiPR85zjuQyZsn7hK3jRicHXg4qETxLvxHQTHHejveGtiYBSx6Z68xBZYrY9Fihz74makocnSLQFBwaHTg6Aaa";
-
-        auto sym = amount.symbol.raw();
-        stats statstable(_self, sym);
-        const auto& st = statstable.get(sym);
-
-        eosio_assert(amount.is_valid(), "invalid quantity" );
-        eosio_assert(fee.is_valid(), "invalid quantity" );
-        eosio_assert(amount.amount > 0, "must transfer positive quantity");
-        eosio_assert(fee.amount >= 0, "must transfer non negative quantity");
-        eosio_assert(amount.symbol == st.supply.symbol, "symbol precision mismatch");
-        eosio_assert(fee.symbol == st.supply.symbol, "symbol precision mismatch");
-        eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
-
-        // once for the amount from to to
-        sub_balance(pkeyFrom, amount);
-        add_balance(pkeyTo, amount);
-
-        // second time to give the relayer the fee
-        if (fee.amount > 0) {
-          sub_balance(pkeyFrom, fee);
-          add_balance(st.issuer, fee);
-        }
-      }
-
-      [[eosio::action]]
-      void verifykey(public_key pkeyFrom,
-                    signature sig,
-                    eosio::checksum256 digest) {
-        print("about to check auth -- top of the function");
-        // require_auth(_self);
-        print("about to verify");
+        // TODO: use arguments provided to create digest, so they can't pass in random args
+        // TODO: don't take in digest as an argument
         assert_recover_key(digest, sig, pkeyFrom);
-        print("verification successful");
+        transfer_internal(pkeyFrom, pkeyTo, amount, fee, memo);
       }
 
-      [[eosio::action]]
-      void verifykey2(public_key pkeyFrom,
-                    signature sig,
-                    std::string data) {
-        eosio::checksum256 digest = sha256(data.c_str(), data.size());
-
-        print("about to check auth -- top of the function");
-        // require_auth(_self);
-        print("about to get the public key");
-        eosio::public_key recoveredKey = recover_key(digest, sig);
-        print("got the public key");
-        const char * recoveredKeyData = &recoveredKey.data[0];
-        print(recoveredKeyData);
-        bool isMatch = recoveredKey == pkeyFrom;
-        print("isMatch");
-        print(isMatch);
-      }
-
-      [[eosio::action]]
-      void printsha(std::string jankJSON, uint32_t jsonLength) {
-        // runs sha 256 with the provided 2 args and prints the result so we can use it in transfer2
-        eosio::checksum256 digest = sha256(jankJSON.c_str(), jsonLength);
-        print("digest:");
-        print(digest);
-      }
   private:
 
     static fixed_bytes<32> public_key_to_fixed_bytes(const public_key publickey) {
@@ -204,6 +122,37 @@ class verifier : public contract {
       }
     }
 
+    void transfer_internal(public_key pkeyFrom,
+                           public_key pkeyTo,
+                           asset amount,
+                           asset fee,
+                           string memo) {
+      require_auth(_self);
+      eosio_assert(pkeyFrom != pkeyTo, "cannot transfer to self");
+
+      auto sym = amount.symbol.raw();
+      stats statstable(_self, sym);
+      const auto& st = statstable.get(sym);
+
+      eosio_assert(amount.is_valid(), "invalid quantity" );
+      eosio_assert(fee.is_valid(), "invalid quantity" );
+      eosio_assert(amount.amount > 0, "must transfer positive quantity");
+      eosio_assert(fee.amount >= 0, "must transfer non negative quantity");
+      eosio_assert(amount.symbol == st.supply.symbol, "symbol precision mismatch");
+      eosio_assert(fee.symbol == st.supply.symbol, "symbol precision mismatch");
+      eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+
+      // once for the amount from to to
+      sub_balance(pkeyFrom, amount);
+      add_balance(pkeyTo, amount);
+
+      // second time to give the relayer the fee
+      if (fee.amount > 0) {
+        sub_balance(pkeyFrom, fee);
+        add_balance(st.issuer, fee);
+      }
+    }
+
     struct [[eosio::table]] account {
       uint64_t key;
       public_key publickey;
@@ -230,4 +179,4 @@ class verifier : public contract {
     typedef eosio::multi_index<"stats"_n, currstats> stats;
 
 };
-EOSIO_DISPATCH(verifier, (create)(issue)(transfer)(printsha)(verifykey)(verifykey2))
+EOSIO_DISPATCH(verifier, (create)(issue)(transfer))
