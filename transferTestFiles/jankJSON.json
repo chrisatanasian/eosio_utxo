@@ -1,5 +1,0 @@
-// this json string will have the same format as the returned string from 
-// this json library's (https://github.com/nlohmann/json) dump function.
-// note the annoying backslashes before every quote
-
-{\"test\":3.14}

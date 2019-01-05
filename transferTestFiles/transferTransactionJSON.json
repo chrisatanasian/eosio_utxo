@@ -1,7 +1,0 @@
-{
-  "from": "EOS8X61Y4uzVBYcn3dDFAn63BDtKVi7GpLQ623bQvPN1x9z4UjBfo",
-  "to": "EOS5ouREfkFyjRc1fVFCAUWZ43xjNvq35r3tuTwqNKdiqTRSm7hzi",
-  "amount": "2 UTXO",
-  "fee": "0 UTXO",
-  "memo": "transferring 2 utxo from pub key 1 to pub key 2"
-}
