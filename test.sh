@@ -21,9 +21,9 @@ cleos push action relayer issue '["EOS6n6PDUvTYvJzgJoU3dnd1fps9muDTx56zRRGvPafe3
 cleos get table relayer relayer accounts
 
 # transfer
-cleos push action relayer transfer '["EOS7i2MKCvs5JdcSp8vctKJ3QKvs5qLiAJC9EwcRb1x5a9vyLsspy", "EOS6n6PDUvTYvJzgJoU3dnd1fps9muDTx56zRRGvPafe3vwCTwFYR", "SIG_K1_K2YizYyASFsvfy6Jmh8jgM3ED4WijzsUhH5X6JCiFYZfHz3iAaj8tCxfDEpAwaGJTfWhj7wftYeLwpL87Aq39NWdxyA8Wv", "766BD7E605A785AF9EE2B39E2265A389A743726019E6A4BCBA8A4D2F4BE5D65F", "2 UTXO", "0 UTXO", "transfer from second account to first account"]' -p relayer
+cleos push action relayer transfer '["EOS7i2MKCvs5JdcSp8vctKJ3QKvs5qLiAJC9EwcRb1x5a9vyLsspy", "EOS6n6PDUvTYvJzgJoU3dnd1fps9muDTx56zRRGvPafe3vwCTwFYR", "SIG_K1_KY9nyphcZVuQRu1qMRJjRuNXmpgg3VnfjWoyaoysJ453kYChHh6HXEsNt1PKEgDuoXxEbsy1tbY7FAwUCkJYVNFYXcq5C2", "2 UTXO", "0 UTXO", "transfer from first account to second account"]' -p relayer
 cleos get table relayer relayer accounts
 
 # fee
-cleos push action relayer transfer '["EOS7i2MKCvs5JdcSp8vctKJ3QKvs5qLiAJC9EwcRb1x5a9vyLsspy", "EOS6n6PDUvTYvJzgJoU3dnd1fps9muDTx56zRRGvPafe3vwCTwFYR", "SIG_K1_KZtSVgv4vswd6F8DqxkGaaYwKLdAuwTBBRDQGAWt9MZVJ81D2ipGZTYDEw8MmBv4CLqAYQiYBoitKnPuTCx5PXcyHXxCVk", "46FDA4D38F067252F69E5C37193606D8788AB6D67CE9D4860C0C3AA50B6281B1", "2 UTXO", "1 UTXO", "transfer from second account to first account"]' -p relayer
+cleos push action relayer transfer '["EOS7i2MKCvs5JdcSp8vctKJ3QKvs5qLiAJC9EwcRb1x5a9vyLsspy", "EOS6n6PDUvTYvJzgJoU3dnd1fps9muDTx56zRRGvPafe3vwCTwFYR", "SIG_K1_KkVrHaYUegByWTCD4LVWH11nse687kKc3DgHucQn6wgwEr66z252dDLz3jjd3Y3WN3J4xFDgFBLqd3CbtDQEHmFf6CcqSG", "2 UTXO", "1 UTXO", "transfer from first account to second account"]' -p relayer
 cleos get table relayer relayer accounts

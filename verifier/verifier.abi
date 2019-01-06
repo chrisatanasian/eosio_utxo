@@ -51,10 +51,6 @@
                     "type": "signature"
                 },
                 {
-                    "name": "digest",
-                    "type": "checksum256"
-                },
-                {
                     "name": "amount",
                     "type": "asset"
                 },

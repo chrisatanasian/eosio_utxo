@@ -24,8 +24,6 @@ class verifier : public contract {
         eosio_assert(maximum_supply.amount > 0, "max-supply must be positive");
 
         stats statstable(_self, symbol.raw());
-        print("Raw symbol: ");
-        print(symbol.raw());
         auto existing = statstable.find(symbol.raw());
         eosio_assert(existing == statstable.end(), "token with symbol already exists");
 
@@ -71,12 +69,20 @@ class verifier : public contract {
       void transfer(public_key pkeyFrom,
                     public_key pkeyTo,
                     signature sig,
-                    checksum256 digest,
                     asset amount,
                     asset fee,
                     string memo) {
-        // TODO: use arguments provided to create digest, so they can't pass in random args
-        // TODO: don't take in digest as an argument
+        // TODO: convert pkeyFrom and pkeyTo to proper strings
+        json digestJSON;
+        digestJSON["from"] = pkeyFrom.data;
+        digestJSON["to"] = pkeyTo.data;
+        digestJSON["amount"] = amount.to_string();
+        digestJSON["fee"] = fee.to_string();
+        digestJSON["memo"] = memo;
+
+        const string digestJSONString = digestJSON.dump();
+        checksum256 digest = sha256(digestJSONString.c_str(), digestJSONString.size());
+
         assert_recover_key(digest, sig, pkeyFrom);
         transfer_internal(pkeyFrom, pkeyTo, amount, fee, memo);
       }
