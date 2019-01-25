@@ -47,6 +47,10 @@
                     "type": "public_key"
                 },
                 {
+                    "name": "sig",
+                    "type": "signature"
+                },
+                {
                     "name": "amount",
                     "type": "asset"
                 },
@@ -95,7 +99,7 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
-        }
+        },
     ],
     "tables": [{
         "name": "accounts",

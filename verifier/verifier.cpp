@@ -3,9 +3,14 @@
 #include <eosiolib/types.h>
 #include <eosiolib/crypto.h>
 #include <eosiolib/asset.hpp>
+#include "json.hpp"
+#include "../eosio.lost/trezor-crypto/base58.c"
+#include "../eosio.lost/trezor-crypto/memzero.c"
+#include "../eosio.lost/trezor-crypto/ripemd160.c"
 
 using namespace eosio;
 using namespace std;
+using json = nlohmann::json;
 
 class verifier : public contract {
   public:
@@ -22,8 +27,6 @@ class verifier : public contract {
         eosio_assert(maximum_supply.amount > 0, "max-supply must be positive");
 
         stats statstable(_self, symbol.raw());
-        print("Raw symbol: ");
-        print(symbol.raw());
         auto existing = statstable.find(symbol.raw());
         eosio_assert(existing == statstable.end(), "token with symbol already exists");
 
@@ -61,61 +64,52 @@ class verifier : public contract {
 
         asset fee = asset(int64_t(0), symbol);
         if (to != st.issuer) {
-          action(permission_level{ _self, "active"_n },
-                 _self, "transfer"_n,
-                 std::make_tuple(st.issuer, to, quantity, fee, memo)
-                 ).send();
+          transfer_internal(st.issuer, to, quantity, fee, memo);
         }
       }
 
       [[eosio::action]]
       void transfer(public_key pkeyFrom,
                     public_key pkeyTo,
+                    signature sig,
                     asset amount,
                     asset fee,
                     string memo) {
-        require_auth(_self);
-        eosio_assert(pkeyFrom != pkeyTo, "cannot transfer to self");
+        json digestJSON;
+        digestJSON["from"] = public_key_to_string(pkeyFrom);
+        digestJSON["to"] = public_key_to_string(pkeyTo);
+        digestJSON["amount"] = amount.to_string();
+        digestJSON["fee"] = fee.to_string();
+        digestJSON["memo"] = memo;
 
-        capi_checksum256 digest;
-        const char* data = "test_data";
-        sha256(data, sizeof(data), &digest);
+        const string str = public_key_to_string(pkeyFrom);
 
-        const string signature = "SIG_K1_KfQ57wLFFiPR85zjuQyZsn7hK3jRicHXg4qETxLvxHQTHHejveGtiYBSx6Z68xBZYrY9Fihz74makocnSLQFBwaHTg6Aaa";
-        eosio_assert(recover_key(digest, signature, 101, pkeyFrom, 53), "digest and signature do not match");
+        const string digestJSONString = digestJSON.dump();
+        checksum256 digest = sha256(digestJSONString.c_str(), digestJSONString.size());
 
-        auto sym = amount.symbol.raw();
-        stats statstable(_self, sym);
-        const auto& st = statstable.get(sym);
-
-        eosio_assert(amount.is_valid(), "invalid quantity" );
-        eosio_assert(fee.is_valid(), "invalid quantity" );
-        eosio_assert(amount.amount > 0, "must transfer positive quantity");
-        eosio_assert(fee.amount >= 0, "must transfer non negative quantity");
-        eosio_assert(amount.symbol == st.supply.symbol, "symbol precision mismatch");
-        eosio_assert(fee.symbol == st.supply.symbol, "symbol precision mismatch");
-        eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
-
-        // once for the amount from to to
-        sub_balance(pkeyFrom, amount);
-        add_balance(pkeyTo, amount);
-
-        // second time to give the relayer the fee
-        if (fee.amount > 0) {
-          sub_balance(pkeyFrom, fee);
-          add_balance(st.issuer, fee);
-        }
+        assert_recover_key(digest, sig, pkeyFrom);
+        transfer_internal(pkeyFrom, pkeyTo, amount, fee, memo);
       }
 
   private:
-    bool recover_key(const capi_checksum256 digest,
-                     const string signature,
-                     size_t siglen,
-                     public_key pub,
-                     size_t publen) {
-      // TODO
-      // assert_recover_key(digest, signature, pub);
-      return true;
+
+    static const string public_key_to_string(public_key pkey) {
+      public_key pkeycopy = pkey;
+      unsigned char to_encode[37];
+      memcpy(to_encode, pkeycopy.data.data(), 33);
+
+      // add ripemd160 checksum to end of key
+      uint8_t hash_output[20];
+      ripemd160((uint8_t *)pkeycopy.data.begin(), 33, hash_output);
+      memcpy(to_encode + 33, hash_output, 4);
+
+      // convert to base58
+      char b58[51];
+      size_t b58sz = 51;
+      b58enc(b58, &b58sz, (const uint8_t *)to_encode, 37);
+
+      string pkeyString(b58);
+      return "EOS" + pkeyString;
     }
 
     static fixed_bytes<32> public_key_to_fixed_bytes(const public_key publickey) {
@@ -154,6 +148,37 @@ class verifier : public contract {
         accounts_index.modify(to, _self, [&]( auto& a ) {
           a.balance += value;
         });
+      }
+    }
+
+    void transfer_internal(public_key pkeyFrom,
+                           public_key pkeyTo,
+                           asset amount,
+                           asset fee,
+                           string memo) {
+      require_auth(_self);
+      eosio_assert(pkeyFrom != pkeyTo, "cannot transfer to self");
+
+      auto sym = amount.symbol.raw();
+      stats statstable(_self, sym);
+      const auto& st = statstable.get(sym);
+
+      eosio_assert(amount.is_valid(), "invalid quantity" );
+      eosio_assert(fee.is_valid(), "invalid quantity" );
+      eosio_assert(amount.amount > 0, "must transfer positive quantity");
+      eosio_assert(fee.amount >= 0, "must transfer non negative quantity");
+      eosio_assert(amount.symbol == st.supply.symbol, "symbol precision mismatch");
+      eosio_assert(fee.symbol == st.supply.symbol, "symbol precision mismatch");
+      eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+
+      // once for the amount from to to
+      sub_balance(pkeyFrom, amount);
+      add_balance(pkeyTo, amount);
+
+      // second time to give the relayer the fee
+      if (fee.amount > 0) {
+        sub_balance(pkeyFrom, fee);
+        add_balance(st.issuer, fee);
       }
     }
 
