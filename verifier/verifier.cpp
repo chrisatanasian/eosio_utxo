@@ -4,6 +4,9 @@
 #include <eosiolib/crypto.h>
 #include <eosiolib/asset.hpp>
 #include "json.hpp"
+#include "../eosio.lost/trezor-crypto/base58.c"
+#include "../eosio.lost/trezor-crypto/memzero.c"
+#include "../eosio.lost/trezor-crypto/ripemd160.c"
 
 using namespace eosio;
 using namespace std;
@@ -72,13 +75,14 @@ class verifier : public contract {
                     asset amount,
                     asset fee,
                     string memo) {
-        // TODO: convert pkeyFrom and pkeyTo to proper strings
         json digestJSON;
-        digestJSON["from"] = pkeyFrom.data;
-        digestJSON["to"] = pkeyTo.data;
+        digestJSON["from"] = public_key_to_string(pkeyFrom);
+        digestJSON["to"] = public_key_to_string(pkeyTo);
         digestJSON["amount"] = amount.to_string();
         digestJSON["fee"] = fee.to_string();
         digestJSON["memo"] = memo;
+
+        const string str = public_key_to_string(pkeyFrom);
 
         const string digestJSONString = digestJSON.dump();
         checksum256 digest = sha256(digestJSONString.c_str(), digestJSONString.size());
@@ -88,6 +92,25 @@ class verifier : public contract {
       }
 
   private:
+
+    static const string public_key_to_string(public_key pkey) {
+      public_key pkeycopy = pkey;
+      unsigned char to_encode[37];
+      memcpy(to_encode, pkeycopy.data.data(), 33);
+
+      // add ripemd160 checksum to end of key
+      uint8_t hash_output[20];
+      ripemd160((uint8_t *)pkeycopy.data.begin(), 33, hash_output);
+      memcpy(to_encode + 33, hash_output, 4);
+
+      // convert to base58
+      char b58[51];
+      size_t b58sz = 51;
+      b58enc(b58, &b58sz, (const uint8_t *)to_encode, 37);
+
+      string pkeyString(b58);
+      return "EOS" + pkeyString;
+    }
 
     static fixed_bytes<32> public_key_to_fixed_bytes(const public_key publickey) {
       return sha256(publickey.data.begin(), 33);

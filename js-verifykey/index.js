@@ -70,7 +70,7 @@ const createTransaction = function(hexedData) {
 
 
 const sig = ecc.sign(
-  '{"amount":"2. UTXO","fee":"1. UTXO","from":[3,115,83,47,-60,106,-45,115,105,54,-65,107,-61,-18,93,-86,-22,122,-115,-74,-106,22,-119,-53,-109,43,96,-13,30,-112,41,19,56],"memo":"transfer from first account to second account","to":[2,-8,-34,-123,45,70,-110,-69,-28,26,116,-115,23,-126,-110,-89,-2,99,-25,23,-20,-26,14,57,93,-56,126,94,56,-41,-14,-107,29]}',
+  '{"amount":"2. UTXO","fee":"1. UTXO","from":"EOS7i2MKCvs5JdcSp8vctKJ3QKvs5qLiAJC9EwcRb1x5a9vyLsspy","memo":"transfer from first account to second account","to":"EOS6n6PDUvTYvJzgJoU3dnd1fps9muDTx56zRRGvPafe3vwCTwFYR"}',
   "5JnbNk8MsC9vK5dVcwYgW6kr2hRg5utraXxba1k15D16BX4wJBT"
 );
 console.log('sig: ', sig)
