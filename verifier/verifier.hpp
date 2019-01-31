@@ -9,7 +9,7 @@ using namespace std;
 
 class verifier : public contract {
   public:
-      using contract::contract;
+    using contract::contract;
 
     [[eosio::action]]
     void create(name issuer, asset maximum_supply);
@@ -40,22 +40,22 @@ class verifier : public contract {
     };
 
     struct [[eosio::table]] currstats {
-      asset supply;
-      asset max_supply;
-      name issuer;
+        asset supply;
+        asset max_supply;
+        name issuer;
 
-      uint64_t primary_key() const { return supply.symbol.raw(); }
+        uint64_t primary_key() const { return supply.symbol.raw(); }
     };
 
     struct [[eosio::table]] nonce {
-      uint64_t id;
-      public_key publickey;
-      uint64_t last_nonce;
+        uint64_t id;
+        public_key publickey;
+        uint64_t last_nonce;
 
-      uint64_t primary_key() const { return id; }
-      fixed_bytes<32> bypk() const {
-        return public_key_to_fixed_bytes(publickey);
-      };
+        uint64_t primary_key() const { return id; }
+        fixed_bytes<32> bypk() const {
+            return public_key_to_fixed_bytes(publickey);
+        };
     };
 
     typedef eosio::multi_index<"accounts"_n,
@@ -73,7 +73,7 @@ class verifier : public contract {
   private:
 
     static fixed_bytes<32> public_key_to_fixed_bytes(const public_key publickey) {
-      return sha256(publickey.data.begin(), 33);
+        return sha256(publickey.data.begin(), 33);
     }
 
     void sub_balance(public_key sender, asset value);

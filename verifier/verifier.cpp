@@ -14,9 +14,9 @@ void verifier::create(name issuer, asset maximum_supply) {
     eosio_assert(existing == statstable.end(), "token with symbol already exists");
   
     statstable.emplace(_self, [&](auto& s) {
-      s.supply.symbol = maximum_supply.symbol;
-      s.max_supply    = maximum_supply;
-      s.issuer        = issuer;
+        s.supply.symbol = maximum_supply.symbol;
+        s.max_supply    = maximum_supply;
+        s.issuer        = issuer;
     });
 }
 
@@ -135,11 +135,11 @@ void verifier::sub_balance(public_key sender, asset value) {
     eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
   
     if (from.balance.amount == value.amount) {
-      from_acts.erase(from);
+        from_acts.erase(from);
     } else {
-      from_acts.modify(from, _self, [&]( auto& a ) {
-        a.balance -= value;
-      });
+        from_acts.modify(from, _self, [&]( auto& a ) {
+            a.balance -= value;
+        });
     }
 }
 
