@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Dec  8 08:54:44 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jan 31 13:46:23 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -39,16 +39,12 @@
             "base": "",
             "fields": [
                 {
-                    "name": "pkeyFrom",
+                    "name": "from",
                     "type": "public_key"
                 },
                 {
-                    "name": "pkeyTo",
+                    "name": "to",
                     "type": "public_key"
-                },
-                {
-                    "name": "sig",
-                    "type": "signature"
                 },
                 {
                     "name": "amount",
@@ -59,27 +55,17 @@
                     "type": "asset"
                 },
                 {
+                    "name": "nonce",
+                    "type": "uint64"
+                },
+                {
                     "name": "memo",
                     "type": "string"
+                },
+                {
+                    "name": "sig",
+                    "type": "signature"
                 }
-            ]
-        },
-        {
-            "name": "account",
-            "base": "",
-            "fields": [
-                {"name":"key", "type":"uint64"},
-                {"name":"publickey", "type":"public_key"},
-                {"name":"balance", "type":"asset"},
-            ]
-        },
-        {
-            "name": "currstats",
-            "base": "",
-            "fields": [
-                {"name":"supply", "type":"asset"},
-                {"name":"max_supply", "type":"asset"},
-                {"name":"issuer", "type":"public_key"}
             ]
         }
     ],
@@ -99,22 +85,9 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
-        },
-    ],
-    "tables": [{
-        "name": "accounts",
-        "type": "account",
-        "index_type": "i64",
-        "key_names" : ["key"],
-        "key_types" : ["uint64"]
-    }, {
-        "name": "stats",
-        "type": "currstats",
-        "index_type": "i64",
-        "key_names" : ["currency"],
-        "key_types" : ["uint64"]
         }
     ],
+    "tables": [],
     "ricardian_clauses": [],
     "variants": [],
     "abi_extensions": []
