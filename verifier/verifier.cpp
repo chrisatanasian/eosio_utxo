@@ -61,7 +61,15 @@ void verifier::transfer(
     auto sym = amount.symbol.raw();
     stats statstable(_self, sym);
     const auto& st = statstable.get(sym);
-  
+
+    // get last nonce
+    nonces noncetable( _self, _self.value );
+    auto pk_index = noncetable.get_index<name("bypk")>();
+    auto nonce_it = pk_index.find(public_key_to_fixed_bytes(from));
+    uint64_t last_nonce = 0;
+    if (nonce_it != pk_index.end())
+        last_nonce = nonce_it->last_nonce;
+    
     // validate inputs
     eosio_assert(from != to, "cannot transfer to self");
     eosio_assert(amount.is_valid(), "invalid quantity" );
@@ -71,6 +79,7 @@ void verifier::transfer(
     eosio_assert(amount.symbol == st.supply.symbol, "symbol precision mismatch");
     eosio_assert(fee.symbol == st.supply.symbol, "symbol precision mismatch");
     eosio_assert(memo.size() <= 164, "memo has more than 164 bytes");
+    eosio_assert(nonce > last_nonce, "Nonce must be greater than last nonce. This transaction may already have been relayed.");
     
     // tx meta fields
     uint8_t version = 0x01;
@@ -102,6 +111,20 @@ void verifier::transfer(
       sub_balance(from, fee);
       add_balance(relayer, fee);
     }
+    
+    // update last nonce
+    if (nonce_it != pk_index.end()) {
+        pk_index.modify(nonce_it, _self, [&]( auto& n ){
+            n.last_nonce = nonce;
+        });
+    } else {
+        noncetable.emplace( _self, [&]( auto& n ) {
+            n.id = noncetable.available_primary_key();
+            n.publickey = from;
+            n.last_nonce = nonce;
+        });
+    }
+  
 }
 
 void verifier::sub_balance(public_key sender, asset value) {
