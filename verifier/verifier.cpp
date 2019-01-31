@@ -47,7 +47,9 @@ void verifier::issue(public_key to, asset quantity, const string memo) {
 }
 
 [[eosio::action]]
-void verifier::transfer(public_key from,
+void verifier::transfer(
+            public_key relayer,
+            public_key from,
             public_key to,
             asset amount,
             asset fee,
@@ -91,14 +93,14 @@ void verifier::transfer(public_key from,
     // verify signature
     assert_recover_key(digest, sig, from);
     
-    // once for the amount from to to
+    // update balances with main amount
     sub_balance(from, amount);
     add_balance(to, amount);
   
-    // second time to give the relayer the fee
+    // update balances with fees
     if (fee.amount > 0) {
       sub_balance(from, fee);
-      add_balance(st.issuer, fee);
+      add_balance(relayer, fee);
     }
 }
 

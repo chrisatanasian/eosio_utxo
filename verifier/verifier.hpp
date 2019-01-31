@@ -18,7 +18,9 @@ class verifier : public contract {
     void issue(public_key to, asset quantity, const string memo);
 
     [[eosio::action]]
-    void transfer(public_key from,
+    void transfer(
+                public_key relayer,
+                public_key from,
                 public_key to,
                 asset amount,
                 asset fee,
