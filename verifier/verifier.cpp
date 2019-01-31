@@ -80,6 +80,7 @@ void verifier::transfer(
     eosio_assert(fee.symbol == st.supply.symbol, "symbol precision mismatch");
     eosio_assert(memo.size() <= 164, "memo has more than 164 bytes");
     eosio_assert(nonce > last_nonce, "Nonce must be greater than last nonce. This transaction may already have been relayed.");
+    eosio_assert(nonce < last_nonce + 100, "Nonce cannot jump by more than 100");
     
     // tx meta fields
     uint8_t version = 0x01;
