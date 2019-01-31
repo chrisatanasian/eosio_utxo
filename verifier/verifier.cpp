@@ -43,7 +43,7 @@ void verifier::issue(public_key to, asset quantity, const string memo) {
        s.supply += quantity;
     });
 
-    add_balance(st.issuer, quantity);
+    add_balance(to, quantity);
 }
 
 [[eosio::action]]
