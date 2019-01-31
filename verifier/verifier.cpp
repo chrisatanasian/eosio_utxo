@@ -1,8 +1,8 @@
 #include "verifier.hpp"
 
 [[eosio::action]]
-void verifier::create(public_key issuer, asset maximum_supply) {
-    require_auth(_self);
+void verifier::create(name issuer, asset maximum_supply) {
+    require_auth( _self );
   
     auto symbol = maximum_supply.symbol;
     eosio_assert(symbol.is_valid(), "invalid symbol name");
@@ -22,8 +22,6 @@ void verifier::create(public_key issuer, asset maximum_supply) {
 
 [[eosio::action]]
 void verifier::issue(public_key to, asset quantity, const string memo) {
-    require_auth(_self);
-
     auto symbol = quantity.symbol;
     eosio_assert(symbol.is_valid(), "invalid symbol name");
     eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
@@ -33,6 +31,7 @@ void verifier::issue(public_key to, asset quantity, const string memo) {
     eosio_assert(existing != statstable.end(), "token with symbol does not exist, create token before issue");
     const auto& st = *existing;
 
+    require_auth( st.issuer );
     eosio_assert(quantity.is_valid(), "invalid quantity");
     eosio_assert(quantity.amount > 0, "must issue positive quantity");
 

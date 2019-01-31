@@ -12,7 +12,7 @@ class verifier : public contract {
       using contract::contract;
 
     [[eosio::action]]
-    void create(public_key issuer, asset maximum_supply);
+    void create(name issuer, asset maximum_supply);
 
     [[eosio::action]]
     void issue(public_key to, asset quantity, const string memo);
@@ -42,7 +42,7 @@ class verifier : public contract {
     struct [[eosio::table]] currstats {
       asset supply;
       asset max_supply;
-      public_key issuer;
+      name issuer;
 
       uint64_t primary_key() const { return supply.symbol.raw(); }
     };
