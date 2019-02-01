@@ -1,5 +1,5 @@
 {
-    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Sat Dec  8 08:54:44 2018",
+    "____comment": "This file was generated with eosio-abigen. DO NOT EDIT Thu Jan 31 16:32:27 2019",
     "version": "eosio::abi/1.1",
     "structs": [
         {
@@ -8,7 +8,7 @@
             "fields": [
                 {
                     "name": "issuer",
-                    "type": "public_key"
+                    "type": "name"
                 },
                 {
                     "name": "maximum_supply",
@@ -39,16 +39,16 @@
             "base": "",
             "fields": [
                 {
-                    "name": "pkeyFrom",
+                    "name": "relayer",
                     "type": "public_key"
                 },
                 {
-                    "name": "pkeyTo",
+                    "name": "from",
                     "type": "public_key"
                 },
                 {
-                    "name": "sig",
-                    "type": "signature"
+                    "name": "to",
+                    "type": "public_key"
                 },
                 {
                     "name": "amount",
@@ -59,8 +59,16 @@
                     "type": "asset"
                 },
                 {
+                    "name": "nonce",
+                    "type": "uint64"
+                },
+                {
                     "name": "memo",
                     "type": "string"
+                },
+                {
+                    "name": "sig",
+                    "type": "signature"
                 }
             ]
         },
@@ -79,7 +87,16 @@
             "fields": [
                 {"name":"supply", "type":"asset"},
                 {"name":"max_supply", "type":"asset"},
-                {"name":"issuer", "type":"public_key"}
+                {"name":"issuer", "type":"name"}
+            ]
+        },
+        {
+            "name": "nonce",
+            "base": "",
+            "fields": [
+                {"name":"id", "type":"uint64"},
+                {"name":"publickey", "type":"public_key"},
+                {"name":"last_nonce", "type":"uint64"}
             ]
         }
     ],
@@ -99,7 +116,7 @@
             "name": "transfer",
             "type": "transfer",
             "ricardian_contract": ""
-        },
+        }
     ],
     "tables": [{
         "name": "accounts",
@@ -113,8 +130,13 @@
         "index_type": "i64",
         "key_names" : ["currency"],
         "key_types" : ["uint64"]
-        }
-    ],
+    }, {
+        "name": "nonces",
+        "type": "nonce",
+        "index_type": "i64",
+        "key_names" : ["id"],
+        "key_types" : ["uint64"]
+    }],
     "ricardian_clauses": [],
     "variants": [],
     "abi_extensions": []
