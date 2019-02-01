@@ -1,3 +1,0 @@
-[submodule "eosio.lost"]
-	path = eosio.lost
-	url = https://github.com/eosdac/eosio.lost.git
