@@ -1,5 +1,11 @@
 # eosio_utxo
 
+## Running tests
+```
+cd js_test
+npm install
+node test.js
+```
+
 ## TODO
-* Add nonce
-* Convert test.sh to use JS so EOSJS signing can be used, with automated and random public/private key creation
+* Add basic frontend client

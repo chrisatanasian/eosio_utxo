@@ -108,8 +108,8 @@ void verifier::transfer(
   
     // update balances with fees
     if (fee.amount > 0) {
-      sub_balance(from, fee);
-      add_balance(relayer, fee);
+        sub_balance(from, fee);
+        add_balance(relayer, fee);
     }
     
     // update last nonce
