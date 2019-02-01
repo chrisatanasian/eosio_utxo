@@ -1,6 +1,5 @@
 *.wasm
 *.wast
-*.abi
 .vscode
 .DS_Store
 js-verifykey/node_modules/**
