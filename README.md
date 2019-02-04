@@ -7,5 +7,9 @@ npm install
 node test.js
 ```
 
-## TODO
-* Add basic frontend client
+## Running frontend
+```
+cd frontend
+yarn install
+yarn start
+```
