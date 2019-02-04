@@ -112,57 +112,64 @@ class App extends Component {
     return (
       <div className="App">
         <form onSubmit={this.handleSubmit}>
-          <label>
+          <label className="label">
             From Public Key:
             <input type="text"
                    value={this.state.from}
                    name="from"
                    placeholder="Enter from public key"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
-          <label>
+          <label className="label">
             From Private Key:
             <input type="text"
                    value={this.state.fromPrivateKey}
                    name="fromPrivateKey"
                    placeholder="Enter from private key"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
-          <label>
+          <label className="label">
             To Public Key:
             <input type="text"
                    value={this.state.to}
                    name="to"
                    placeholder="Enter to public key"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
-          <label>
+          <label className="label">
             Amount:
             <input type="number"
                    value={this.state.amount}
                    name="amount"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
-          <label>
+          <label className="label">
             Fee:
             <input type="number"
                    value={this.state.fee}
                    name="fee"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
-          <label>
+          <label className="label">
             Nonce:
             <input type="number"
                    value={this.state.nonce}
                    name="nonce"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
-          <label>
+          <label className="label">
             Memo:
             <input type="text"
                    value={this.state.memo}
                    name="memo"
-                   onChange={this.handleChange} />
+                   onChange={this.handleChange}
+                   className="input" />
           </label>
           <input type="submit" value="Transfer" disabled={this.isSubmitDisabled()} />
         </form>
