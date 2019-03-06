@@ -136,15 +136,15 @@
             "name": "accounts",
             "type": "account",
             "index_type": "i64",
-            "key_names": [],
-            "key_types": []
+            "key_names": ["key"],
+            "key_types": ["key"]
         },
         {
             "name": "stats",
             "type": "currstats",
             "index_type": "i64",
-            "key_names": [],
-            "key_types": []
+            "key_names": ["currency"],
+            "key_types": ["key"]
         }
     ],
     "ricardian_clauses": [],
