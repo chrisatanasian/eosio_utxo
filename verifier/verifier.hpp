@@ -7,8 +7,9 @@
 using namespace eosio;
 using namespace std;
 
-class verifier : public contract {
-  public:
+class [[eosio::contract]] verifier : public eosio::contract {
+
+public:
     using contract::contract;
 
     [[eosio::action]]
@@ -32,6 +33,7 @@ class verifier : public contract {
       uint64_t key;
       public_key publickey;
       asset balance;
+      uint64_t last_nonce;
 
       uint64_t primary_key() const { return key; }
       fixed_bytes<32> bypk() const {
@@ -47,28 +49,12 @@ class verifier : public contract {
         uint64_t primary_key() const { return supply.symbol.raw(); }
     };
 
-    struct [[eosio::table]] nonce {
-        uint64_t id;
-        public_key publickey;
-        uint64_t last_nonce;
-
-        uint64_t primary_key() const { return id; }
-        fixed_bytes<32> bypk() const {
-            return public_key_to_fixed_bytes(publickey);
-        };
-    };
-
     typedef eosio::multi_index<"accounts"_n,
                                account,
                                indexed_by<"bypk"_n, const_mem_fun<account, fixed_bytes<32>, &account::bypk>>
                               > accounts;
 
     typedef eosio::multi_index<"stats"_n, currstats> stats;
-
-    typedef eosio::multi_index<"nonces"_n,
-                               nonce,
-                               indexed_by<"bypk"_n, const_mem_fun<nonce, fixed_bytes<32>, &nonce::bypk>>
-                              > nonces;
 
   private:
 
