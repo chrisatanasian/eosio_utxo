@@ -1,5 +1,6 @@
 #include "verifier.hpp"
 
+
 [[eosio::action]]
 void verifier::create(name issuer, asset maximum_supply) {
     require_auth( _self );
@@ -62,12 +63,12 @@ void verifier::transfer(
     const auto& st = statstable.get(sym);
 
     // get last nonce
-    nonces noncetable( _self, _self.value );
-    auto pk_index = noncetable.get_index<name("bypk")>();
-    auto nonce_it = pk_index.find(public_key_to_fixed_bytes(from));
+    accounts accounts_table(_self, _self.value);
+    auto pk_index = accounts_table.get_index<name("bypk")>();
+    auto account_it = pk_index.find(public_key_to_fixed_bytes(from));
     uint64_t last_nonce = 0;
-    if (nonce_it != pk_index.end())
-        last_nonce = nonce_it->last_nonce;
+    if (account_it != pk_index.end())
+        last_nonce = account_it->last_nonce;
     
     // validate inputs
     eosio_assert(from != to, "cannot transfer to self");
@@ -113,17 +114,10 @@ void verifier::transfer(
     }
     
     // update last nonce
-    if (nonce_it != pk_index.end()) {
-        pk_index.modify(nonce_it, _self, [&]( auto& n ){
-            n.last_nonce = nonce;
-        });
-    } else {
-        noncetable.emplace( _self, [&]( auto& n ) {
-            n.id = noncetable.available_primary_key();
-            n.publickey = from;
-            n.last_nonce = nonce;
-        });
-    }
+    account_it = pk_index.find(public_key_to_fixed_bytes(from));
+    pk_index.modify(account_it, _self, [&]( auto& n ){
+        n.last_nonce = nonce;
+    });
   
 }
 
@@ -154,6 +148,7 @@ void verifier::add_balance(public_key recipient, asset value) {
             a.key = to_acts.available_primary_key();
             a.balance = value;
             a.publickey = recipient;
+            a.last_nonce = 0;
         });
     } else {
         accounts_index.modify(to, _self, [&]( auto& a ) {
