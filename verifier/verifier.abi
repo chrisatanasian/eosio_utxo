@@ -137,14 +137,14 @@
             "type": "account",
             "index_type": "i64",
             "key_names": ["key"],
-            "key_types": ["key"]
+            "key_types": ["uint64"]
         },
         {
             "name": "stats",
             "type": "currstats",
             "index_type": "i64",
             "key_names": ["currency"],
-            "key_types": ["key"]
+            "key_types": ["uint64"]
         }
     ],
     "ricardian_clauses": [],
