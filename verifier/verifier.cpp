@@ -183,7 +183,7 @@ void verifier::add_balance(public_key recipient, asset value) {
 extern "C" void apply(uint64_t receiver, uint64_t code, uint64_t action)
 {
     auto _self = receiver;
-    if (code == name("everipediaiq").value && action == name("transfer").value)
+    if (code == name("eosio.token").value && action == name("transfer").value)
     {
         eosio::execute_action(
             eosio::name(receiver), eosio::name(code), &verifier::issue
