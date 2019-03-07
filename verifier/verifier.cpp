@@ -1,5 +1,5 @@
 #include "verifier.hpp"
-
+#include "base58.c"
 
 [[eosio::action]]
 void verifier::create(name issuer, asset maximum_supply) {
@@ -21,29 +21,52 @@ void verifier::create(name issuer, asset maximum_supply) {
     });
 }
 
-[[eosio::action]]
-void verifier::issue(public_key to, asset quantity, const string memo) {
+void verifier::issue(name from, name to, asset quantity, string memo) {
+    if (from == _self) return; // sending EOS, ignore
+
     auto symbol = quantity.symbol;
     eosio_assert(symbol.is_valid(), "invalid symbol name");
-    eosio_assert(memo.size() <= 256, "memo has more than 256 bytes");
+    eosio_assert(memo.size() == 53, "memo must be a 53-char EOS public key");
+    eosio_assert(memo.substr(0,3) == "EOS", "public key must start with EOS");
+    eosio_assert(to == _self, "stop trying to hack the contract");
+    eosio_assert(quantity.symbol == EOS_SYMBOL, "this contract only accepts EOS");
 
-    stats statstable(_self, symbol.raw());
-    auto existing = statstable.find(symbol.raw());
-    eosio_assert(existing != statstable.end(), "token with symbol does not exist, create token before issue");
+    stats statstable(_self, UTXO_SYMBOL.raw());
+    auto existing = statstable.find(UTXO_SYMBOL.raw());
+    eosio_assert(existing != statstable.end(), "UTXO token does not exist, create token before issue");
     const auto& st = *existing;
 
-    require_auth( st.issuer );
     eosio_assert(quantity.is_valid(), "invalid quantity");
     eosio_assert(quantity.amount > 0, "must issue positive quantity");
 
-    eosio_assert(quantity.symbol == st.supply.symbol, "symbol precision mismatch");
+    eosio_assert(quantity.symbol.precision() == st.supply.symbol.precision(), "symbol precision mismatch");
     eosio_assert(quantity.amount <= st.max_supply.amount - st.supply.amount, "quantity exceeds available supply");
 
+    // copy EOS quantity to UTXO
+    auto utxo_quantity = quantity;
+    utxo_quantity.symbol = UTXO_SYMBOL;
+
+    // TODO: ensure EOS balance is enough to cover UTXO issuance
+    // This will always be true unless the contract has been hacked
+    // so it is mostly a sanity check
+
     statstable.modify(st, _self, [&](auto& s) {
-       s.supply += quantity;
+       s.supply += utxo_quantity;
     });
 
-    add_balance(to, quantity);
+    // convert public key memo to public_key object
+    public_key issue_to;
+    size_t issue_to_len = 37;
+    b58tobin((void *)issue_to.data.data(), &issue_to_len, memo.substr(3).c_str());
+
+    // validate the checksum
+    public_key issue_to_copy = issue_to;
+    checksum160 checksum = ripemd160((const char *)issue_to_copy.data.begin(), 33);
+    std::array<uint8_t,20> checksum_bytes = checksum.extract_as_byte_array();
+    for (int i=0; i<4; i++)
+        eosio_assert(checksum_bytes[i] == (uint8_t)issue_to.data[33+i], "invalid public key in memo: checksum does not validate");
+
+    add_balance(issue_to, utxo_quantity);
 }
 
 [[eosio::action]]
@@ -157,4 +180,25 @@ void verifier::add_balance(public_key recipient, asset value) {
     }
 }
 
-EOSIO_DISPATCH(verifier, (create)(issue)(transfer))
+extern "C" void apply(uint64_t receiver, uint64_t code, uint64_t action)
+{
+    auto _self = receiver;
+    if (code == name("everipediaiq").value && action == name("transfer").value)
+    {
+        eosio::execute_action(
+            eosio::name(receiver), eosio::name(code), &verifier::issue
+        );
+    }
+    else if (code == _self && action == name("create").value)
+    {
+        eosio::execute_action(
+            eosio::name(receiver), eosio::name(code), &verifier::create
+        );
+    }
+    else if (code == _self && action == name("transfer").value)
+    {
+        eosio::execute_action(
+            eosio::name(receiver), eosio::name(code), &verifier::transfer
+        );
+    }
+}

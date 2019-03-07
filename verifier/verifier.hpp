@@ -7,6 +7,9 @@
 using namespace eosio;
 using namespace std;
 
+const eosio::symbol EOS_SYMBOL = symbol(symbol_code("EOS"), 4);
+const eosio::symbol UTXO_SYMBOL = symbol(symbol_code("UTXO"), 4);
+
 class [[eosio::contract]] verifier : public eosio::contract {
 
 public:
@@ -14,9 +17,6 @@ public:
 
     [[eosio::action]]
     void create(name issuer, asset maximum_supply);
-
-    [[eosio::action]]
-    void issue(public_key to, asset quantity, const string memo);
 
     [[eosio::action]]
     void transfer(
@@ -28,6 +28,12 @@ public:
                 uint64_t nonce,
                 string memo,
                 signature sig);
+
+    // Public but not a directly callable action
+    // Called indirectly by sending EOS to this contract
+    // Has the same function signature as everipediaiq::transfer
+    void issue(name from, name to, asset quantity, string memo);
+
 
     struct [[eosio::table]] account {
       uint64_t key;
