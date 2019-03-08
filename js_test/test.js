@@ -66,7 +66,7 @@ async function test() {
 
   // account setup
   shell.exec(`cleos create account eosio utxo ${utxoKeys.public}`);
-  shell.exec(`cleos create account eosio otheraccount ${utxoKeys.public}`);
+  shell.exec(`cleos create account eosio everipediaiq ${utxoKeys.public}`);
   shell.exec(`cleos create account eosio eosio.token ${utxoKeys.public}`);
 
   // bootstrap system contracts
@@ -80,7 +80,7 @@ async function test() {
 
   // create
   shell.exec('cleos push action utxo create \'["utxo", "100.0000 UTXO"]\' -p utxo');
-  shell.exec('cleos get table utxo 340784338176 stats');
+  shell.exec('cleos get table utxo 340784338180 stats');
 
   // issue
   shell.exec(`cleos transfer eosio utxo "1.0000 EOS" ${utxoKeys.public}`);
@@ -88,12 +88,17 @@ async function test() {
   shell.exec(`cleos transfer eosio utxo "5.0000 EOS" ${secondAccountKeys.public}`);
   shell.exec('cleos get table utxo utxo accounts');
 
-  // transfer, expected balances should be 2, 7, 2
+  // transfer, expected balances is 2, 7, 2
   shell.exec(transferCommand(utxoKeys.public, secondAccountKeys, firstAccountKeys.public, 3, 1, 1, "transfer from second account to first"));
   shell.exec(transferCommand(utxoKeys.public, firstAccountKeys, secondAccountKeys.public, 1, 0, 1, "transfer from second account to first"));
   shell.exec('cleos get table utxo utxo accounts');
 
-  shell.exec('cleos get table utxo 340784338176 stats');
+  // withdrawal, expected balances is 2, 2, 2
+  shell.exec(`cleos set account permission utxo active '{ "threshold": 1, "keys": [{ "key": "${utxoKeys.public}", "weight": 1 }], "accounts": [{ "permission": { "actor":"utxo","permission":"eosio.code" }, "weight":1 } ] }' owner -p utxo`);
+  shell.exec(transferCommand(utxoKeys.public, firstAccountKeys, 'EOS1111111111111111111111111111111114T1Anm', 5, 0, 2, 'eosio.token', 'utxo'));
+  shell.exec('cleos get table utxo utxo accounts');
+
+  shell.exec('cleos get table utxo 340784338180 stats');
 }
 
 test();
