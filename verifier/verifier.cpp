@@ -4,16 +4,16 @@
 [[eosio::action]]
 void verifier::create(name issuer, asset maximum_supply) {
     require_auth( _self );
-  
+
     auto symbol = maximum_supply.symbol;
     eosio_assert(symbol.is_valid(), "invalid symbol name");
     eosio_assert(maximum_supply.is_valid(), "invalid supply");
     eosio_assert(maximum_supply.amount > 0, "max-supply must be positive");
-  
+
     stats statstable(_self, symbol.raw());
     auto existing = statstable.find(symbol.raw());
     eosio_assert(existing == statstable.end(), "token with symbol already exists");
-  
+
     statstable.emplace(_self, [&](auto& s) {
         s.supply.symbol = maximum_supply.symbol;
         s.max_supply    = maximum_supply;
@@ -92,7 +92,7 @@ void verifier::transfer(
     uint64_t last_nonce = 0;
     if (account_it != pk_index.end())
         last_nonce = account_it->last_nonce;
-    
+
     // validate inputs
     eosio_assert(from != to, "cannot transfer to self");
     eosio_assert(quantity.is_valid(), "invalid quantity" );
@@ -106,11 +106,11 @@ void verifier::transfer(
     eosio_assert(memo.size() <= 163, "memo has more than 164 bytes");
     eosio_assert(nonce > last_nonce, "Nonce must be greater than last nonce. This transaction may already have been relayed.");
     eosio_assert(nonce < last_nonce + 100, "Nonce cannot jump by more than 100");
-    
+
     // tx meta fields
     uint8_t version = 0x01;
     uint8_t length = 92 + memo.size();
-    
+
     // construct raw transaction
     uint8_t rawtx[length];
     rawtx[0] = version;
@@ -121,13 +121,13 @@ void verifier::transfer(
     memcpy(rawtx + 76, (uint8_t *)&fee.amount, 8);
     memcpy(rawtx + 84, (uint8_t *)&nonce, 8);
     memcpy(rawtx + 92, memo.c_str(), memo.size());
-    
+
     // hash transaction
     checksum256 digest = sha256((const char *)rawtx, length);
-    
+
     // verify signature
     assert_recover_key(digest, sig, from);
-    
+
     // update last nonce
     pk_index.modify(account_it, _self, [&]( auto& n ){
         n.last_nonce = nonce;
@@ -139,7 +139,7 @@ void verifier::transfer(
     // Create the public_key object for the WITHDRAW_ADDRESS
     public_key withdraw_key = to;
     memcpy(withdraw_key.data.data(), WITHDRAW_KEY_BYTES, 33);
-    
+
     // if the to address is the withdraw address, send an IQ transfer out
     // and update the circulating supply
     if (to == withdraw_key) {
@@ -147,7 +147,7 @@ void verifier::transfer(
         eos_quantity.symbol = EOS_SYMBOL;
         name withdraw_account = name(memo);
         action(
-            permission_level{ _self , name("active") }, 
+            permission_level{ _self , name("active") },
             name("everipediaiq") , name("transfer"),
             std::make_tuple( _self, withdraw_account, eos_quantity, std::string("withdraw EOS from UTXO"))
         ).send();
@@ -159,9 +159,10 @@ void verifier::transfer(
         });
     }
     // add the balance if it's not a withdrawal
-    else
+    else {
         add_balance(to, quantity);
-  
+    }
+
     // update balances with fees
     if (fee.amount > 0) {
         sub_balance(from, fee);
@@ -172,11 +173,11 @@ void verifier::transfer(
 
 void verifier::sub_balance(public_key sender, asset value) {
     accounts from_acts(_self, _self.value);
-  
+
     auto accounts_index = from_acts.get_index<name("bypk")>();
     const auto& from = accounts_index.get(public_key_to_fixed_bytes(sender), "no public key object found");
     eosio_assert(from.balance.amount >= value.amount, "overdrawn balance");
-  
+
     if (from.balance.amount == value.amount) {
         from_acts.erase(from);
     } else {
@@ -188,10 +189,10 @@ void verifier::sub_balance(public_key sender, asset value) {
 
 void verifier::add_balance(public_key recipient, asset value) {
     accounts to_acts(_self, _self.value);
-  
+
     auto accounts_index = to_acts.get_index<name("bypk")>();
     auto to = accounts_index.find(public_key_to_fixed_bytes(recipient));
-  
+
     if (to == accounts_index.end()) {
         to_acts.emplace(_self, [&]( auto& a ){
             a.key = to_acts.available_primary_key();
